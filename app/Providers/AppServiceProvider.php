@@ -6,7 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Projet;
+use App\Models\Project;
 use App\Policies\ProjetPolicy;
+use App\Policies\ProjectPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         
         Gate::policy(Projet::class, ProjetPolicy::class);
-        
+        Gate::policy(Project::class, ProjectPolicy::class);
+
         // Gate pour l'accès admin
         Gate::define('admin-access', function ($user) {
             return $user->role && $user->role->name === 'administrateur';
@@ -43,6 +46,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('artiste-access', function ($user) {
             return $user->role && $user->role->name === 'artiste';
+        });
+
+        Gate::define('manage-artistes', function ($user) {
+            return $user && $user->canManageArtistes();
         });
     }
 }

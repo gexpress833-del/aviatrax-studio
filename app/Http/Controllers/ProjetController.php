@@ -38,7 +38,7 @@ class ProjetController extends Controller
         })->where('statut', 'valide')->get();
         
         $responsables = User::whereHas('role', function($query) {
-            $query->where('name', 'responsable');
+            $query->where('name', 'responsable_studio');
         })->where('statut', 'valide')->get();
 
         return view('projets.create', compact('artistes', 'responsables'));
@@ -98,7 +98,7 @@ class ProjetController extends Controller
         })->where('statut', 'valide')->get();
         
         $responsables = User::whereHas('role', function($query) {
-            $query->where('name', 'responsable');
+            $query->where('name', 'responsable_studio');
         })->where('statut', 'valide')->get();
 
         return view('projets.edit', compact('projet', 'artistes', 'responsables'));
@@ -201,12 +201,17 @@ class ProjetController extends Controller
             return redirect()->back()->with('error', 'Veuillez sélectionner au moins un fichier à uploader.');
         }
 
+        if (! User::isCloudinaryConfigured()) {
+            return redirect()->back()->with('error', 'Le stockage Cloudinary n’est pas configuré. Les fichiers ne peuvent pas être enregistrés.');
+        }
+
+        $mediaDisk = 'cloudinary';
         $updateData = [];
 
         // Upload du fichier audio
         if ($request->hasFile('fichier_audio')) {
             $audioFile = $request->file('fichier_audio');
-            $audioPath = $audioFile->store('projets/audio', 'local');
+            $audioPath = $audioFile->storeAs('projets/audio', $audioFile->hashName(), $mediaDisk);
             
             $updateData['fichier_audio_path'] = $audioPath;
             $updateData['fichier_audio_nom_original'] = $audioFile->getClientOriginalName();
@@ -217,7 +222,7 @@ class ProjetController extends Controller
         // Upload du fichier vidéo
         if ($request->hasFile('fichier_video')) {
             $videoFile = $request->file('fichier_video');
-            $videoPath = $videoFile->store('projets/video', 'local');
+            $videoPath = $videoFile->storeAs('projets/video', $videoFile->hashName(), $mediaDisk);
             
             $updateData['fichier_video_path'] = $videoPath;
             $updateData['fichier_video_nom_original'] = $videoFile->getClientOriginalName();
@@ -230,6 +235,7 @@ class ProjetController extends Controller
 
         Log::info('Fichiers médias uploadés', [
             'projet_id' => $projet->id,
+            'disk' => $mediaDisk,
             'uploaded_by' => Auth::id()
         ]);
 
@@ -247,9 +253,11 @@ class ProjetController extends Controller
             abort(404, 'Fichier audio non trouvé');
         }
 
-        $filePath = storage_path('app/' . $projet->fichier_audio_path);
-        
-        return response()->download($filePath, $projet->fichier_audio_nom_original);
+        if (str_starts_with($projet->fichier_audio_path, 'http://') || str_starts_with($projet->fichier_audio_path, 'https://')) {
+            return redirect()->away($projet->fichier_audio_path);
+        }
+
+        return redirect()->away(\Illuminate\Support\Facades\Storage::disk('cloudinary')->url($projet->fichier_audio_path));
     }
 
     public function downloadVideo(Projet $projet)
@@ -263,9 +271,11 @@ class ProjetController extends Controller
             abort(404, 'Fichier vidéo non trouvé');
         }
 
-        $filePath = storage_path('app/' . $projet->fichier_video_path);
-        
-        return response()->download($filePath, $projet->fichier_video_nom_original);
+        if (str_starts_with($projet->fichier_video_path, 'http://') || str_starts_with($projet->fichier_video_path, 'https://')) {
+            return redirect()->away($projet->fichier_video_path);
+        }
+
+        return redirect()->away(\Illuminate\Support\Facades\Storage::disk('cloudinary')->url($projet->fichier_video_path));
     }
 
     public function validateFiles(Request $request, Projet $projet)
@@ -294,5 +304,28 @@ class ProjetController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Validation des fichiers enregistrée.');
+    }
+
+    public function destroy(Projet $projet)
+    {
+        Gate::authorize('delete', $projet);
+
+        // Supprimer les fichiers associés
+        if ($projet->fichier_audio_path) {
+            \Illuminate\Support\Facades\Storage::disk('cloudinary')->delete($projet->fichier_audio_path);
+        }
+        if ($projet->fichier_video_path) {
+            \Illuminate\Support\Facades\Storage::disk('cloudinary')->delete($projet->fichier_video_path);
+        }
+
+        $projetId = $projet->id;
+        $projet->delete();
+
+        Log::info('Projet supprimé', [
+            'projet_id' => $projetId,
+            'deleted_by' => Auth::id()
+        ]);
+
+        return redirect()->route('projets.index')->with('success', 'Projet supprimé avec succès.');
     }
 }

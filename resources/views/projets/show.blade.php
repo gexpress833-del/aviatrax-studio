@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="space-y-6 text-white">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-blue-400">{{ $projet->titre }}</h1>
         @can('update', $projet)
             @if(!auth()->user()->isArtiste())
@@ -70,13 +70,13 @@
                     @if($projet->etapes->count() > 0)
                         <div class="space-y-3">
                             @foreach($projet->etapes->sortByDesc('created_at') as $etape)
-                                <div class="flex items-center justify-between p-3 bg-[#1a2233] rounded">
-                                    <div>
-                                        <div class="flex items-center">
+                                <div class="flex flex-col gap-3 p-3 bg-[#1a2233] rounded sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2">
                                             <span class="px-2 py-1 text-xs font-medium rounded-full text-white" style="background-color: {{ $projet->etape_color }}">
                                                 {{ $etape->etape_label }}
                                             </span>
-                                            <span class="ml-2 text-sm text-blue-200">
+                                            <span class="text-sm text-blue-200">
                                                 par {{ $etape->modifiePar->name }}
                                             </span>
                                         </div>
@@ -84,7 +84,7 @@
                                             <p class="mt-1 text-sm text-white">{{ $etape->commentaire }}</p>
                                         @endif
                                     </div>
-                                    <span class="text-xs text-blue-300">{{ $etape->created_at->format('d/m/Y H:i') }}</span>
+                                    <span class="shrink-0 text-xs text-blue-300">{{ $etape->created_at->format('d/m/Y H:i') }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -177,8 +177,8 @@
                                         auth()->user()->isResponsableStudio() ||
                                         auth()->user()->isSecretaire()
                                     ))
-                                        <div class="flex items-center justify-between p-2 bg-[#101828] rounded">
-                                            <div>
+                                        <div class="flex flex-col gap-2 p-2 bg-[#101828] rounded sm:flex-row sm:items-center sm:justify-between">
+                                            <div class="min-w-0">
                                                 <span class="text-sm text-blue-300">🎵 {{ $projet->fichier_audio_nom_original }}</span>
                                                 <span class="text-xs text-gray-400 ml-2">({{ $projet->getAudioSizeFormatted() }})</span>
                                             </div>
@@ -190,8 +190,8 @@
                                     @endif
                                     
                                     @if($projet->hasFichierVideo())
-                                        <div class="flex items-center justify-between p-2 bg-[#101828] rounded">
-                                            <div>
+                                        <div class="flex flex-col gap-2 p-2 bg-[#101828] rounded sm:flex-row sm:items-center sm:justify-between">
+                                            <div class="min-w-0">
                                                 <span class="text-sm text-blue-300">🎬 {{ $projet->fichier_video_nom_original }}</span>
                                                 <span class="text-xs text-gray-400 ml-2">({{ $projet->getVideoSizeFormatted() }})</span>
                                             </div>
@@ -224,7 +224,7 @@
                                                   placeholder="Vos observations sur les fichiers..."></textarea>
                                     </div>
                                     
-                                    <div class="flex space-x-2">
+                                    <div class="flex flex-col gap-2 sm:flex-row">
                                         <button type="submit" name="valide" value="1" 
                                                 class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
                                             ✅ Approuver

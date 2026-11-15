@@ -10,7 +10,7 @@
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-orange-400 mb-4">Utilisateurs</h3>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-blue-900">
+                <table class="min-w-[700px] divide-y divide-blue-900">
                     <thead class="bg-blue-900">
                         <tr>
                             <th class="px-6 py-3 bg-blue-900 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Nom</th>
@@ -33,7 +33,7 @@
                                         <div class="flex-shrink-0 h-10 w-10">
                                             @if($user->photo_path)
                                                 <div class="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center border-2 border-blue-400 shadow overflow-hidden">
-                                                    <img src="{{ asset('storage/' . $user->photo_path) }}" alt="Photo de profil" class="w-full h-full object-cover object-center" loading="lazy">
+                                                    <img src="{{ $user->photo_url }}" alt="Photo de profil" class="w-full h-full object-cover object-center" loading="lazy">
                                                 </div>
                                             @else
                                                 <div class="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center border-2 border-blue-400 shadow">
@@ -43,7 +43,7 @@
                                                 </div>
                                             @endif
                                         </div>
-                                        <div class="ml-4">
+                                        <div class="ml-3 min-w-0 sm:ml-4">
                                             <div class="text-sm font-medium text-white">{{ $user->name }}</div>
                                             <div class="text-sm text-blue-200">{{ $user->email }}</div>
                                             <div class="text-sm text-blue-300">{{ $user->telephone }}</div>
@@ -81,7 +81,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
+                                    <div class="flex flex-wrap gap-2">
                                         @if($user->statut === 'en_attente_validation')
                                             <form method="POST" action="{{ route('admin.users.validate', $user) }}" class="inline">
                                                 @csrf

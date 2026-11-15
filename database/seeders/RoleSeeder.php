@@ -29,7 +29,12 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            Role::create($role);
+            Role::updateOrCreate(
+                ['name' => $role['name']],
+                ['description' => $role['description']]
+            );
         }
+
+        Role::where('name', 'admin')->delete();
     }
 } 

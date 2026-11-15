@@ -9,6 +9,10 @@
 /.vscode
 /.zed
 /auth.json
+/.env
+/.env.*
+!/.env.example
+/testlog.txt
 /node_modules
 /public/build
 /public/hot

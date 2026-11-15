@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="space-y-6 text-white">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-blue-400">Projets musicaux</h1>
         @can('create', App\Models\Projet::class)
             @if(auth()->user()->isAdmin() || auth()->user()->isResponsableStudio() || auth()->user()->isSecretariat())
@@ -21,25 +21,25 @@
                 @foreach($projets as $projet)
                     <li>
                         <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="flex min-w-0 items-start">
                                     <div class="flex-shrink-0">
                                         <div class="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center">
                                             <span class="text-sm font-medium text-orange-400">🎵</span>
                                         </div>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="flex items-center">
-                                            <p class="text-sm font-medium text-blue-300 truncate">
+                                    <div class="ml-3 min-w-0 sm:ml-4">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <p class="min-w-0 text-sm font-medium text-blue-300">
                                                 <a href="{{ route('projets.show', $projet) }}" class="hover:underline text-blue-400">
                                                     {{ $projet->titre }}
                                                 </a>
                                             </p>
-                                            <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full text-black bg-orange-400" style="background-color: {{ $projet->etape_color }}">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full text-black bg-orange-400" style="background-color: {{ $projet->etape_color }}">
                                                 {{ $projet->etape_label }}
                                             </span>
                                         </div>
-                                        <div class="mt-1 flex items-center text-sm text-blue-200">
+                                        <div class="mt-1 flex flex-wrap items-center text-sm text-blue-200">
                                             <span>Artiste: {{ $projet->artiste->name }}</span>
                                             @if(auth()->user()->isAdmin() || auth()->user()->isResponsableStudio() || auth()->user()->isSecretariat())
                                                 <span class="mx-2">•</span>
@@ -51,7 +51,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                     @if($projet->date_debut)
                                         <span class="text-sm text-blue-200">Début: {{ $projet->date_debut->format('d/m/Y') }}</span>
                                     @endif

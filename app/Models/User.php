@@ -11,7 +11,18 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'telephone', 'photo_path',
+        'name',
+        'stage_name',
+        'email',
+        'phone',
+        'telephone',
+        'password',
+        'status',
+        'statut',
+        'avatar_url',
+        'photo_path',
+        'role_id',
+        'responsable_id',
     ];
 
     protected $hidden = [
@@ -21,7 +32,46 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'status' => 'string',
+        'statut' => 'string',
     ];
+
+    public static function isCloudinaryConfigured(): bool
+    {
+        $cloud = config('filesystems.disks.cloudinary.cloud');
+        $key = config('filesystems.disks.cloudinary.key');
+        $secret = config('filesystems.disks.cloudinary.secret');
+
+        if (! $cloud || ! $key || ! $secret) {
+            return false;
+        }
+
+        return ! str_contains(strtolower((string) $cloud), 'your_')
+            && ! str_contains(strtolower((string) $key), 'your_')
+            && ! str_contains(strtolower((string) $secret), 'your_');
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (blank($this->photo_path)) {
+            return null;
+        }
+
+        $photoPath = (string) $this->photo_path;
+
+        if (filter_var($photoPath, FILTER_VALIDATE_URL)) {
+            return $photoPath;
+        }
+
+        if (self::isCloudinaryConfigured()) {
+            $cloudName = config('filesystems.disks.cloudinary.cloud');
+            $publicId = ltrim($photoPath, '/');
+
+            return 'https://res.cloudinary.com/' . $cloudName . '/image/upload/' . $publicId;
+        }
+
+        return null;
+    }
 
     /**
      * Relation avec le rôle.
@@ -37,6 +87,16 @@ class User extends Authenticatable
     public function projetsArtiste()
     {
         return $this->hasMany(Projet::class, 'artiste_id');
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class, 'artist_id');
+    }
+
+    public function managedProjects()
+    {
+        return $this->hasMany(Project::class, 'studio_manager_id');
     }
 
     /**
@@ -83,7 +143,7 @@ class User extends Authenticatable
 
     public function isResponsableStudio()
     {
-        return $this->hasRole('responsable'); // Corrigé pour correspondre au nom du rôle en base
+        return $this->hasRole('responsable_studio');
     }
 
     public function isArtiste()
@@ -93,7 +153,12 @@ class User extends Authenticatable
 
     public function isSecretaire()
     {
-        return $this->role && $this->role->name === 'secretaire';
+        return $this->hasRole('secretariat');
+    }
+
+    public function canManageArtistes()
+    {
+        return in_array($this->role?->name, ['administrateur', 'secretariat', 'responsable_studio'], true);
     }
 
     /**
@@ -101,6 +166,36 @@ class User extends Authenticatable
      */
     public function isValide()
     {
-        return $this->statut === 'valide';
+        return $this->status === 'valide' || $this->statut === 'valide';
+    }
+
+    public function isPendingValidation()
+    {
+        return $this->status === 'en_attente_validation' || $this->statut === 'en_attente_validation';
+    }
+
+    public function isSuspended()
+    {
+        return $this->status === 'suspendu' || $this->statut === 'suspendu';
+    }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function withdrawalRequests()
+    {
+        return $this->hasMany(WithdrawalRequest::class);
+    }
+
+    public function projectComments()
+    {
+        return $this->hasMany(ProjectComment::class);
+    }
+
+    public function projectFiles()
+    {
+        return $this->hasMany(ProjectFile::class, 'uploaded_by');
     }
 }

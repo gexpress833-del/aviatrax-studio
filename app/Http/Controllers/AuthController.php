@@ -28,19 +28,41 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'telephone' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'name.required' => 'Le nom complet est obligatoire.',
+            'email.required' => 'L’adresse e-mail est obligatoire.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide.',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée par un autre compte.',
+            'telephone.required' => 'Le numéro de téléphone est obligatoire.',
+            'telephone.max' => 'Le numéro de téléphone ne peut pas dépasser 20 caractères.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
         ]);
+
+        $roleName = 'artiste';
+        $role = Role::firstOrCreate(
+            ['name' => $roleName],
+            ['description' => 'Artiste']
+        );
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'telephone' => $request->telephone,
             'password' => Hash::make($request->password),
+            'role_id' => $role->id,
             'statut' => 'en_attente_validation',
         ]);
 
-        Log::info('Nouvel utilisateur inscrit', ['user_id' => $user->id, 'email' => $user->email]);
+        Log::info('Nouvel utilisateur inscrit', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $roleName,
+            'statut' => $user->statut,
+        ]);
 
-        return redirect()->route('login')->with('success', 'Inscription réussie ! Votre compte sera validé par un administrateur.');
+        return redirect()->route('login')->with('success', 'Inscription réussie ! Votre compte artiste est en attente de validation par l’administration.');
     }
 
     public function login(Request $request)
@@ -48,6 +70,10 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+        ], [
+            'email.required' => 'L’adresse e-mail est obligatoire.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide.',
+            'password.required' => 'Le mot de passe est obligatoire.',
         ]);
 
         $credentials = $request->only('email', 'password');

@@ -41,20 +41,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [App\Http\Controllers\UserController::class, 'showProfile'])->name('profile.show');
     Route::get('/profile/edit', [App\Http\Controllers\UserController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('profile.update');
+    Route::middleware('role:artiste')->group(function () {
+        Route::get('/wallet', [App\Http\Controllers\UserController::class, 'wallet'])->name('wallet');
+        Route::post('/wallet/withdraw', [App\Http\Controllers\UserController::class, 'storeWithdrawalRequest'])->name('wallet.withdraw');
+    });
+    Route::post('/notifications/read-all', [App\Http\Controllers\UserController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+    Route::get('/notifications/feed', [App\Http\Controllers\UserController::class, 'notificationFeed'])->name('notifications.feed');
+    Route::post('/notifications/{notification}/read', [App\Http\Controllers\UserController::class, 'markNotificationAsRead'])->name('notifications.read');
 
     // 🛡️ Administration
     Route::middleware('role:administrateur')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+        Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.destroy');
         Route::post('/users/{user}/validate', [AdminController::class, 'validateUser'])->name('users.validate');
         Route::post('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.role');
         Route::post('/users/{user}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{user}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
         Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
+        Route::get('/settings/currency', [AdminController::class, 'currencySettings'])->name('currency.edit');
+        Route::put('/settings/currency', [AdminController::class, 'updateCurrencySettings'])->name('currency.update');
     });
 
-    // 📋 Secrétariat
-    Route::middleware('role:secretariat')->prefix('secretariat')->name('secretariat.')->group(function () {
+    // 📋 Gestion des artistes - autorisée au secrétariat, responsable studio et admin
+    Route::middleware(['auth', 'artiste-management'])->prefix('secretariat')->name('secretariat.')->group(function () {
         Route::get('/', [SecretariatController::class, 'dashboard'])->name('dashboard');
         Route::get('/artistes/create', [SecretariatController::class, 'createArtiste'])->name('artistes.create');
         Route::post('/artistes', [SecretariatController::class, 'storeArtiste'])->name('artistes.store');
@@ -66,7 +78,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // 🎛️ Responsable studio
-    Route::middleware('role:responsable')->prefix('dashboard/responsable')->name('dashboard.responsable.')->group(function () {
+    Route::middleware('role:responsable_studio')->prefix('dashboard/responsable')->name('dashboard.responsable.')->group(function () {
         Route::get('/', [DashboardController::class, 'responsable'])->name('index');
 
         Route::get('/projets/create', [StudioController::class, 'createProjet'])->name('projets.create');

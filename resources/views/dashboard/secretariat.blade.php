@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Dashboard Secrétariat</h1>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap gap-2">
             <a href="{{ route('projets.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                 Nouveau projet
             </a>
@@ -86,7 +86,7 @@
                                 <div class="flex-1">
                                     <h4 class="font-medium text-gray-900">{{ $projet->titre }}</h4>
                                     <p class="text-sm text-gray-500">{{ $projet->description }}</p>
-                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-400">
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-400">
                                         <span>Artiste: {{ $projet->artiste->name ?? 'Non assigné' }}</span>
                                         <span>Responsable: {{ $projet->responsable->name ?? 'Non assigné' }}</span>
                                     </div>

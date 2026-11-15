@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="space-y-6 text-white">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Dashboard Administrateur</h1>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap gap-2">
             <a href="{{ route('admin.logs') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
                 Voir les logs
             </a>

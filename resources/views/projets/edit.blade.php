@@ -47,7 +47,7 @@
             </select>
             @error('statut')<div class="text-orange-400 text-xs mt-1">{{ $message }}</div>@enderror
         </div>
-        <div class="flex justify-end">
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <a href="{{ route('projets.show', $projet) }}" class="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 font-semibold">Annuler</a>
             <button type="submit" class="ml-2 bg-orange-400 text-black px-6 py-2 rounded hover:bg-orange-500 font-semibold">Enregistrer</button>
         </div>

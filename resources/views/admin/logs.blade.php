@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="space-y-6 text-white">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 class="text-2xl font-bold text-blue-400 mb-6">Logs d'activité</h2>
         <a href="{{ route('admin.dashboard') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
             Retour au dashboard
@@ -116,7 +116,7 @@
     <div class="bg-[#101828] shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-orange-400 mb-4">Actions</h3>
-            <div class="flex space-x-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                 <a href="{{ route('admin.dashboard') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Dashboard Admin
                 </a>

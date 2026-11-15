@@ -17,7 +17,7 @@ class DashboardController extends Controller
         return match ($role) {
             'administrateur' => $this->adminDashboard(),
             'secretariat' => $this->secretariatDashboard(),
-            'responsable' => $this->responsableDashboard(),
+            'responsable_studio' => $this->responsableDashboard(),
             'artiste' => $this->artisteDashboard(),
             default => abort(403),
         };
@@ -68,7 +68,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $projets = Projet::where('artiste_id', $user->id)->with(['responsable'])->get();
-        
+
         $projetsParEtape = [
             'enregistrement' => $projets->where('etape', 'enregistrement')->count(),
             'mixage' => $projets->where('etape', 'mixage')->count(),

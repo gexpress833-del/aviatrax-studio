@@ -16,7 +16,7 @@
             <div>
                 @if($user->photo_path)
                     <div class="w-28 h-28 rounded-full bg-blue-900 flex items-center justify-center border-4 border-blue-400 shadow overflow-hidden">
-                        <img src="{{ asset('storage/' . $user->photo_path) }}" alt="Photo de profil" class="w-full h-full object-cover object-center" loading="lazy">
+                        <img src="{{ $user->photo_url }}" alt="Photo de profil" class="w-full h-full object-cover object-center" loading="lazy">
                     </div>
                 @else
                     <div class="w-28 h-28 rounded-full bg-blue-900 flex items-center justify-center border-4 border-blue-400 shadow">
@@ -39,6 +39,13 @@
             <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="mt-1 block w-full border-blue-900 bg-black text-white rounded-md shadow-sm focus:ring-blue-400 focus:border-orange-400">
             @error('name')<div class="text-orange-400 text-xs mt-1">{{ $message }}</div>@enderror
         </div>
+        @if($user->isArtiste())
+            <div>
+                <label class="block text-sm font-medium text-blue-300 mb-1">Nom de scène</label>
+                <input type="text" name="stage_name" value="{{ old('stage_name', $user->stage_name) }}" maxlength="255" class="mt-1 block w-full border-blue-900 bg-black text-white rounded-md shadow-sm focus:ring-blue-400 focus:border-orange-400">
+                @error('stage_name')<div class="text-orange-400 text-xs mt-1">{{ $message }}</div>@enderror
+            </div>
+        @endif
         <div>
             <label class="block text-sm font-medium text-blue-300 mb-1">Adresse e-mail</label>
             <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="mt-1 block w-full border-blue-900 bg-black text-white rounded-md shadow-sm focus:ring-blue-400 focus:border-orange-400">

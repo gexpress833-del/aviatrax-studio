@@ -37,8 +37,8 @@
                 @if($usersEnAttente->count() > 0)
                     <div class="space-y-3">
                         @foreach($usersEnAttente as $user)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                <div>
+                            <div class="flex flex-col gap-3 p-3 bg-gray-50 rounded sm:flex-row sm:items-center sm:justify-between">
+                                <div class="min-w-0">
                                     <div class="font-medium">{{ $user->name }}</div>
                                     <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                     <div class="text-sm text-gray-500">{{ $user->telephone }}</div>
@@ -66,8 +66,8 @@
                     <div class="space-y-3">
                         @foreach($projetsRecents as $projet)
                             <div class="p-3 bg-gray-50 rounded">
-                                <div class="flex items-center justify-between">
-                                    <div>
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="min-w-0">
                                         <div class="font-medium">{{ $projet->titre }}</div>
                                         <div class="text-sm text-gray-500">{{ $projet->artiste->name }}</div>
                                     </div>
@@ -88,7 +88,7 @@
     <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-orange-400 mb-4">Actions rapides</h3>
-            <div class="flex space-x-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                 <a href="{{ route('admin.users') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Gérer les utilisateurs
                 </a>

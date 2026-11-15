@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Dashboard Secrétariat</h1>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap gap-2">
             <a href="{{ route('secretariat.artistes.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                 Nouvel artiste
             </a>
@@ -76,7 +76,7 @@
     <!-- Liste des artistes -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h3 class="text-lg font-medium text-gray-900">Gestion des artistes</h3>
                 <a href="{{ route('secretariat.artistes.create') }}" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
                     + Nouvel artiste
@@ -85,7 +85,7 @@
             
             @if($artistes->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-[900px] divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artiste</th>
@@ -143,7 +143,7 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
+                                        <div class="flex flex-wrap gap-2">
                                             <a href="{{ route('secretariat.artistes.edit', $artiste) }}" 
                                                class="text-blue-600 hover:text-blue-900">Modifier</a>
                                             

@@ -64,7 +64,7 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3">
+                    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                         <a href="{{ route('projets.index') }}" 
                            class="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800">
                             Annuler

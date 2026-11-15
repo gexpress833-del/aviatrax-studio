@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Projet extends Model
 {
@@ -64,6 +66,26 @@ class Projet extends Model
         ][$this->etape] ?? 'Inconnu';
     }
 
+    public static function canAdvanceTo($currentEtape, $nextEtape)
+    {
+        $ordreWorkflow = [
+            'enregistrement',
+            'mixage',
+            'mastering',
+            'distribution_en_cours',
+            'distribution_terminee',
+        ];
+
+        $etapeActuelle = array_search($currentEtape, $ordreWorkflow, true);
+        $prochaineEtape = array_search($nextEtape, $ordreWorkflow, true);
+
+        if ($etapeActuelle === false || $prochaineEtape === false) {
+            return false;
+        }
+
+        return $prochaineEtape === $etapeActuelle + 1;
+    }
+
     public function updateEtape($nouvelleEtape, $commentaire = null, $userId = null)
     {
         $ancienneEtape = $this->etape;
@@ -87,12 +109,28 @@ class Projet extends Model
     // Méthodes pour les fichiers média
     public function hasFichierAudio()
     {
-        return !empty($this->fichier_audio_path) && file_exists(storage_path('app/' . $this->fichier_audio_path));
+        if (empty($this->fichier_audio_path)) {
+            return false;
+        }
+
+        if (Str::startsWith($this->fichier_audio_path, ['http://', 'https://'])) {
+            return true;
+        }
+
+        return Storage::disk('cloudinary')->exists($this->fichier_audio_path);
     }
 
     public function hasFichierVideo()
     {
-        return !empty($this->fichier_video_path) && file_exists(storage_path('app/' . $this->fichier_video_path));
+        if (empty($this->fichier_video_path)) {
+            return false;
+        }
+
+        if (Str::startsWith($this->fichier_video_path, ['http://', 'https://'])) {
+            return true;
+        }
+
+        return Storage::disk('cloudinary')->exists($this->fichier_video_path);
     }
 
     public function getAudioSizeFormatted()

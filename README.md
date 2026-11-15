@@ -64,7 +64,7 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=aviator_music_studio
 DB_USERNAME=root
-DB_PASSWORD=1999
+DB_PASSWORD=<votre-mot-de-passe>
 DB_CHARSET=utf8mb4
 DB_COLLATION=utf8mb4_unicode_ci
 ```
@@ -89,10 +89,9 @@ php artisan db:seed
 php artisan serve
 ```
 
-## 👤 Compte Administrateur par défaut
+## Compte administrateur initial
 
-- **Email** : admin@aviatrax-studio.com
-- **Mot de passe** : password
+Configurez `ADMIN_EMAIL` et `ADMIN_PASSWORD` dans l’environnement avant d’exécuter les seeders. Aucun mot de passe administrateur par défaut n’est fourni. Les comptes de démonstration ne sont créés qu’en environnement local ou de test.
 
 ## 📁 Structure du Projet
 

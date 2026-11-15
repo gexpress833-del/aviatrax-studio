@@ -31,27 +31,39 @@ class SecretariatController extends Controller
 
     public function createArtiste()
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         return view('secretariat.create-artiste');
     }
 
     public function storeArtiste(Request $request)
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'telephone' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'name.required' => 'Le nom complet est obligatoire.',
+            'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+            'email.required' => 'L’adresse e-mail est obligatoire.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide.',
+            'email.max' => 'L’adresse e-mail est trop longue.',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée par un autre compte.',
+            'telephone.required' => 'Le numéro de téléphone est obligatoire.',
+            'telephone.max' => 'Le numéro de téléphone est trop long.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
         ]);
 
         // Récupérer le rôle artiste
         $roleArtiste = Role::where('name', 'artiste')->first();
         
         if (!$roleArtiste) {
-            return redirect()->back()->with('error', 'Rôle artiste non trouvé.');
+            return redirect()->back()->with('error', 'Le rôle artiste est introuvable dans la configuration du studio.');
         }
 
         $artiste = User::create([
@@ -60,20 +72,21 @@ class SecretariatController extends Controller
             'telephone' => $request->telephone,
             'password' => Hash::make($request->password),
             'role_id' => $roleArtiste->id,
-            'statut' => 'valide', // Le secrétariat peut valider directement
+            'statut' => 'valide',
         ]);
 
-        Log::info('Compte artiste créé par le secrétariat', [
+        Log::info('Compte artiste créé par l’équipe studio', [
             'artiste_id' => $artiste->id,
-            'created_by' => Auth::id()
+            'created_by' => Auth::id(),
+            'role' => Auth::user()?->role?->name,
         ]);
 
-        return redirect()->route('secretariat.dashboard')->with('success', 'Compte artiste créé avec succès.');
+        return redirect()->route('secretariat.dashboard')->with('success', 'Le compte artiste a bien été créé et activé pour le studio.');
     }
 
     public function editArtiste(User $artiste)
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         // Vérifier que c'est bien un artiste
         if (!$artiste->role || $artiste->role->name !== 'artiste') {
@@ -85,7 +98,7 @@ class SecretariatController extends Controller
 
     public function updateArtiste(Request $request, User $artiste)
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         // Vérifier que c'est bien un artiste
         if (!$artiste->role || $artiste->role->name !== 'artiste') {
@@ -111,12 +124,12 @@ class SecretariatController extends Controller
             'modified_by' => Auth::id()
         ]);
 
-        return redirect()->route('secretariat.dashboard')->with('success', 'Artiste mis à jour avec succès.');
+        return redirect()->route('secretariat.dashboard')->with('success', 'La fiche artiste a bien été mise à jour dans le studio.');
     }
 
     public function suspendArtiste(User $artiste)
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         // Vérifier que c'est bien un artiste
         if (!$artiste->role || $artiste->role->name !== 'artiste') {
@@ -130,12 +143,12 @@ class SecretariatController extends Controller
             'suspended_by' => Auth::id()
         ]);
 
-        return redirect()->back()->with('success', 'Artiste suspendu avec succès.');
+        return redirect()->back()->with('success', 'L’artiste a été suspendu et n’a plus accès au studio.');
     }
 
     public function activateArtiste(User $artiste)
     {
-        Gate::authorize('secretariat-access');
+        Gate::authorize('manage-artistes');
         
         // Vérifier que c'est bien un artiste
         if (!$artiste->role || $artiste->role->name !== 'artiste') {
@@ -149,16 +162,12 @@ class SecretariatController extends Controller
             'activated_by' => Auth::id()
         ]);
 
-        return redirect()->back()->with('success', 'Artiste réactivé avec succès.');
+        return redirect()->back()->with('success', 'L’artiste a été réactivé et peut reprendre ses projets.');
     }
 
     public function affecterResponsable(Request $request, User $artiste)
     {
-        Gate::authorize('secretariat-access');
-        // Autoriser aussi l'admin
-        if (!Auth::user()->isSecretariat() && !Auth::user()->isAdmin()) {
-            abort(403);
-        }
+        Gate::authorize('manage-artistes');
         // Vérifier que c'est bien un artiste validé
         if (!$artiste->role || $artiste->role->name !== 'artiste' || $artiste->statut !== 'valide') {
             return redirect()->back()->with('error', 'Seuls les artistes validés peuvent être affectés.');

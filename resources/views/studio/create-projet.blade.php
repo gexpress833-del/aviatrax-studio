@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Créer un nouveau projet</h1>
         <a href="{{ route('studio.dashboard') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
             Retour au dashboard
@@ -93,7 +93,7 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3">
+                    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                         <a href="{{ route('studio.dashboard') }}" 
                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                             Annuler

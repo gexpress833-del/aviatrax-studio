@@ -82,7 +82,7 @@ class StudioController extends Controller
             'created_by' => Auth::id()
         ]);
 
-        return redirect()->route('studio.dashboard')->with('success', 'Projet créé avec succès.');
+        return redirect()->route('studio.dashboard')->with('success', 'Le projet a bien été créé et enregistré dans le workflow d’enregistrement.');
     }
 
     public function updateEtape(Request $request, Projet $projet)
@@ -93,6 +93,10 @@ class StudioController extends Controller
             'etape' => 'required|in:enregistrement,mixage,mastering,distribution_en_cours,distribution_terminee',
             'commentaire' => 'nullable|string|max:500',
         ]);
+
+        if (!Projet::canAdvanceTo($projet->etape, $request->etape)) {
+            return redirect()->back()->with('error', 'Cette étape ne peut pas être validée dans l’ordre du workflow studio. Le projet doit suivre la progression : Enregistrement → Mixage → Mastering → Distribution.');
+        }
 
         // Vérifier les permissions selon l'étape
         if (in_array($request->etape, ['distribution_en_cours', 'distribution_terminee'])) {
@@ -118,7 +122,7 @@ class StudioController extends Controller
             'updated_by' => Auth::id()
         ]);
 
-        return redirect()->back()->with('success', 'Étape mise à jour avec succès.');
+        return redirect()->back()->with('success', 'Le workflow du projet a été mis à jour avec succès.');
     }
 
     public function showProjet(Projet $projet)
@@ -174,7 +178,7 @@ class StudioController extends Controller
             'modified_by' => Auth::id()
         ]);
 
-        return redirect()->route('studio.dashboard')->with('success', 'Projet mis à jour avec succès.');
+        return redirect()->route('studio.dashboard')->with('success', 'Le projet a été mis à jour avec succès et les informations studio ont bien été synchronisées.');
     }
 
     public function uploadMedia(Request $request, Projet $projet)
@@ -202,12 +206,17 @@ class StudioController extends Controller
             return redirect()->back()->with('error', 'Veuillez sélectionner au moins un fichier à uploader.');
         }
 
+        if (! User::isCloudinaryConfigured()) {
+            return redirect()->back()->with('error', 'Le stockage Cloudinary n’est pas configuré. Les fichiers ne peuvent pas être enregistrés.');
+        }
+
+        $mediaDisk = 'cloudinary';
         $updateData = [];
 
         // Upload du fichier audio
         if ($request->hasFile('fichier_audio')) {
             $audioFile = $request->file('fichier_audio');
-            $audioPath = $audioFile->store('projets/audio', 'public');
+            $audioPath = $audioFile->storeAs('projets/audio', $audioFile->hashName(), $mediaDisk);
             
             $updateData['fichier_audio_path'] = $audioPath;
             $updateData['fichier_audio_nom_original'] = $audioFile->getClientOriginalName();
@@ -218,7 +227,7 @@ class StudioController extends Controller
         // Upload du fichier vidéo
         if ($request->hasFile('fichier_video')) {
             $videoFile = $request->file('fichier_video');
-            $videoPath = $videoFile->store('projets/video', 'public');
+            $videoPath = $videoFile->storeAs('projets/video', $videoFile->hashName(), $mediaDisk);
             
             $updateData['fichier_video_path'] = $videoPath;
             $updateData['fichier_video_nom_original'] = $videoFile->getClientOriginalName();
@@ -238,6 +247,7 @@ class StudioController extends Controller
 
         Log::info('Fichiers médias uploadés', [
             'projet_id' => $projet->id,
+            'disk' => $mediaDisk,
             'audio_uploaded' => $request->hasFile('fichier_audio'),
             'video_uploaded' => $request->hasFile('fichier_video'),
             'uploaded_by' => Auth::id()
