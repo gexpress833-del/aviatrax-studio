@@ -6,6 +6,9 @@ echo APP_ENV=local >> .env
 echo APP_KEY= >> .env
 echo APP_DEBUG=true >> .env
 echo APP_URL=http://localhost >> .env
+echo SESSION_SAME_SITE=lax >> .env
+echo SESSION_SECURE_COOKIE=false >> .env
+echo SESSION_HTTP_ONLY=true >> .env
 echo. >> .env
 echo LOG_CHANNEL=stack >> .env
 echo LOG_DEPRECATIONS_CHANNEL=null >> .env
