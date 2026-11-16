@@ -33,6 +33,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY docker/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/php-production.ini /usr/local/etc/php/conf.d/production.ini
 COPY --from=dependencies --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=frontend --chown=www-data:www-data /app/public/build /var/www/html/public/build
 COPY docker/start-render.sh /usr/local/bin/start-render

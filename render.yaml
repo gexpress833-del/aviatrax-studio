@@ -10,6 +10,8 @@ services:
     healthCheckPath: /up
     autoDeployTrigger: commit
     envVars:
+      - key: APP_NAME
+        value: Aviatrax Studio
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
