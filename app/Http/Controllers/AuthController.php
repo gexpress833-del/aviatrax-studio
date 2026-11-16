@@ -13,7 +13,24 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        session()->forget('pending_user_id');
+
         return view('auth.login');
+    }
+
+    public function pendingApproval()
+    {
+        $user = Auth::check() ? Auth::user() : User::find(session('pending_user_id'));
+
+        if ($user && $user->isValide()) {
+            return redirect()->route('dashboard');
+        }
+
+        if (!$user || !$user->isPendingValidation()) {
+            return redirect()->route('login');
+        }
+
+        return view('auth.pending', ['user' => $user]);
     }
 
     public function showRegister()
@@ -80,13 +97,23 @@ class AuthController extends Controller
         
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            
+
+            if ($user->isPendingValidation()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                session(['pending_user_id' => $user->id]);
+                Auth::logout();
+
+                return redirect()->route('account.pending');
+            }
+
             if (!$user->isValide()) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Votre compte n\'est pas encore validé.']);
+                return redirect()->route('login')->withErrors(['email' => 'Votre compte est actuellement indisponible.']);
             }
 
             $request->session()->regenerate();
+            session()->forget('pending_user_id');
             
             Log::info('Connexion utilisateur', ['user_id' => $user->id, 'email' => $user->email]);
 
@@ -103,6 +130,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        session()->forget('pending_user_id');
 
         return redirect()->route('login');
     }

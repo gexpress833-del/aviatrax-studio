@@ -40,6 +40,53 @@ class ExampleTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_pending_artist_is_redirected_to_waiting_page_after_login(): void
+    {
+        $role = Role::firstOrCreate(
+            ['name' => 'artiste'],
+            ['description' => 'Artiste']
+        );
+
+        $user = User::factory()->create([
+            'name' => 'Artiste en attente',
+            'email' => 'pending-artist@example.com',
+            'telephone' => '0102030405',
+            'password' => Hash::make('password123'),
+            'role_id' => $role->id,
+            'statut' => 'en_attente_validation',
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/compte-en-attente');
+
+        $this->assertFalse(auth()->check());
+    }
+
+    public function test_pending_artist_is_redirected_from_dashboard(): void
+    {
+        $role = Role::firstOrCreate(
+            ['name' => 'artiste'],
+            ['description' => 'Artiste']
+        );
+
+        $user = User::factory()->create([
+            'name' => 'Artiste bloqué',
+            'email' => 'blocked-artist@example.com',
+            'telephone' => '0102030406',
+            'password' => Hash::make('password123'),
+            'role_id' => $role->id,
+            'statut' => 'en_attente_validation',
+        ]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertRedirect('/compte-en-attente');
+    }
+
     public function test_public_registration_creates_artist_account_by_default(): void
     {
         $role = Role::firstOrCreate(

@@ -9,6 +9,8 @@ use App\Http\Controllers\SecretariatController;
 use App\Http\Controllers\StudioController;
 
 // 🔐 Authentification
+Route::get('/compte-en-attente', [AuthController::class, 'pendingApproval'])->name('account.pending');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
