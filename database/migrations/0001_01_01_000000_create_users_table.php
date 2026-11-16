@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('statut', ['en_attente_validation', 'valide', 'suspendu'])->default('en_attente_validation');
-            $table->foreignId('role_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('role_id')->nullable();
             $table->foreignId('responsable_id')->nullable()->constrained('users')->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
