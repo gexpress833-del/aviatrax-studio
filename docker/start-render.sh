@@ -15,6 +15,7 @@ sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${port}>/" /etc/apache2/sites-avail
 export APP_URL="${APP_URL:-${external_url}}"
 export ASSET_URL="${ASSET_URL:-${external_url}}"
 
+php artisan migrate --force
 php artisan config:cache
 php artisan view:cache
 
