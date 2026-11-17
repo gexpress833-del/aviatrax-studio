@@ -52,7 +52,7 @@
             <div class="flex min-h-16 flex-wrap items-center justify-between gap-y-3 py-3">
                 <div class="flex w-full items-center justify-between lg:w-auto lg:justify-start lg:gap-6">
                     <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-lg font-bold text-blue-400 tracking-wide sm:text-xl">Aviatrax Studio</h1>
+                        <a href="{{ url('/') }}" class="text-lg font-bold text-blue-400 tracking-wide transition-colors hover:text-orange-300 sm:text-xl">Aviatrax Studio</a>
                     </div>
                     <div class="hidden lg:flex lg:items-center lg:space-x-6">
                         <a href="{{ route('dashboard') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Dashboard</a>
@@ -207,6 +207,44 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            function setActionButtonLoading(button, isLoading) {
+                if (!(button instanceof HTMLButtonElement)) return;
+
+                if (!isLoading) {
+                    button.disabled = false;
+                    button.classList.remove('action-loading');
+                    button.removeAttribute('aria-busy');
+                    button.querySelector('.action-spinner')?.remove();
+                    delete button.dataset.loading;
+                    return;
+                }
+
+                if (button.dataset.loading === 'true') return;
+
+                button.dataset.loading = 'true';
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                button.classList.add('action-loading');
+
+                const spinner = document.createElement('span');
+                spinner.className = 'action-spinner';
+                spinner.setAttribute('aria-hidden', 'true');
+                button.prepend(spinner);
+            }
+
+            document.addEventListener('submit', function (event) {
+                if (event.defaultPrevented) return;
+
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) return;
+
+                const submitButton = event.submitter instanceof HTMLButtonElement
+                    ? event.submitter
+                    : form.querySelector('button[type="submit"]:not([disabled]), button:not([type]):not([disabled])');
+
+                setActionButtonLoading(submitButton, true);
+            });
+
             const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenuToggle?.addEventListener('click', function () {
@@ -331,6 +369,7 @@
 
             readAllForm?.addEventListener('submit', async function (event) {
                 event.preventDefault();
+                setActionButtonLoading(event.submitter, true);
                 try {
                     const response = await fetch(readAllForm.action, {
                         method: 'POST',
@@ -340,6 +379,8 @@
                     if (response.ok || response.redirected) await refreshNotifications();
                 } catch (error) {
                     readAllForm.submit();
+                } finally {
+                    setActionButtonLoading(event.submitter, false);
                 }
             });
         });

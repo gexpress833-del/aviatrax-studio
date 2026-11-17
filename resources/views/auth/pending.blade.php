@@ -5,6 +5,11 @@
 @section('content')
 <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-950">
     <div class="w-full max-w-xl rounded-3xl border border-blue-400/40 bg-slate-900/90 p-8 shadow-2xl shadow-slate-950/60">
+        <a href="{{ url('/') }}" class="mb-8 inline-flex items-center gap-3 text-lg font-bold text-blue-300 transition-colors hover:text-orange-300" aria-label="Aviatrax Studio, accueil">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white">A</span>
+            Aviatrax Studio
+        </a>
+
         <div class="mb-6 flex justify-center">
             <div class="flex h-20 w-20 items-center justify-center rounded-full border border-amber-400/50 bg-amber-500/10 text-amber-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -34,8 +39,8 @@
         </div>
 
         <div class="mt-8 flex justify-center">
-            <a href="{{ route('login') }}" class="rounded-xl border border-blue-400/50 bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-200 transition hover:bg-blue-500/20">
-                Retour à la connexion
+            <a href="{{ url('/') }}" class="rounded-xl border border-orange-400/50 bg-orange-500/10 px-5 py-3 text-sm font-semibold text-orange-200 transition hover:bg-orange-500/20">
+                Retour à la page d’accueil
             </a>
         </div>
     </div>

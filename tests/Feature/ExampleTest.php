@@ -16,10 +16,6 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * A guest visiting the root is redirected to the authenticated dashboard,
-     * which then requires login.
-     */
     public function test_the_application_shows_the_public_landing_page_for_guests(): void
     {
         $response = $this->get('/');
@@ -67,6 +63,11 @@ class ExampleTest extends TestCase
         $this->assertSame('valide', $admin->statut);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($admin);
+
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('bg-slate-900/90', false)
+            ->assertDontSee('bg-white', false);
     }
 
     public function test_login_error_is_visible_after_invalid_credentials(): void
@@ -112,6 +113,12 @@ class ExampleTest extends TestCase
         $response->assertRedirect('/compte-en-attente');
 
         $this->assertFalse(auth()->check());
+
+        $this->get('/compte-en-attente')
+            ->assertOk()
+            ->assertSee('Aviatrax Studio')
+            ->assertSee('href="' . url('/') . '"', false)
+            ->assertSee('Retour à la page d’accueil');
     }
 
     public function test_pending_artist_is_redirected_from_dashboard(): void

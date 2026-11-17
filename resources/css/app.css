@@ -283,3 +283,32 @@
     opacity: 0;
   }
 }
+
+.action-loading {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.action-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  vertical-align: -0.125em;
+  animation: action-spinner-spin 0.7s linear infinite;
+}
+
+@keyframes action-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-spinner {
+    animation-duration: 1.5s;
+  }
+}
