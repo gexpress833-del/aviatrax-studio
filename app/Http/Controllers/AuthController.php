@@ -69,6 +69,7 @@ class AuthController extends Controller
             'telephone' => $request->telephone,
             'password' => Hash::make($request->password),
             'role_id' => $role->id,
+            'status' => 'en_attente_validation',
             'statut' => 'en_attente_validation',
         ]);
 

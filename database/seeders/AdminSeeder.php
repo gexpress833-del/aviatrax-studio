@@ -11,8 +11,8 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = env('ADMIN_EMAIL');
-        $password = env('ADMIN_PASSWORD');
+        $email = config('admin.email');
+        $password = config('admin.password');
 
         if (! $email || ! $password) {
             $this->command?->warn('Admin non créé : configurez ADMIN_EMAIL et ADMIN_PASSWORD dans l’environnement.');
@@ -20,23 +20,29 @@ class AdminSeeder extends Seeder
             return;
         }
 
-        $adminRole = Role::where('name', 'administrateur')->first();
+        $adminRole = Role::firstOrCreate(
+            ['name' => 'administrateur'],
+            ['description' => 'Contrôle total, valide les projets et rôles']
+        );
 
-        if ($adminRole) {
-            $admin = User::firstOrCreate(
-                ['email' => $email],
-                [
-                    'name' => 'Administrateur',
-                    'telephone' => '0123456789',
-                    'password' => Hash::make($password),
-                    'statut' => 'valide',
-                    'role_id' => $adminRole->id,
-                ]
-            );
+        $admin = User::updateOrCreate(
+            ['email' => $email],
+            [
+                'name' => 'Administrateur',
+                'telephone' => '0123456789',
+                'password' => Hash::make($password),
+                'status' => 'valide',
+                'statut' => 'valide',
+                'role_id' => $adminRole->id,
+            ]
+        );
 
-            if (!$admin->role || $admin->role->id !== $adminRole->id) {
-                $admin->update(['role_id' => $adminRole->id, 'statut' => 'valide']);
-            }
+        if ($admin->role?->id !== $adminRole->id || $admin->status !== 'valide' || $admin->statut !== 'valide') {
+            $admin->update([
+                'role_id' => $adminRole->id,
+                'status' => 'valide',
+                'statut' => 'valide',
+            ]);
         }
     }
 } 

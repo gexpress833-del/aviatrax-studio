@@ -6,6 +6,7 @@ use App\Models\Projet;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use Database\Seeders\AdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +33,52 @@ class ExampleTest extends TestCase
         $response = $this->get('/dashboard');
 
         $response->assertRedirect('/login');
+    }
+
+    public function test_administrator_can_log_in_with_valid_credentials(): void
+    {
+        $role = Role::firstOrCreate(
+            ['name' => 'administrateur'],
+            ['description' => 'Administrateur']
+        );
+
+        $admin = User::factory()->create([
+            'email' => 'admin-login@example.com',
+            'telephone' => '0102030408',
+            'password' => Hash::make('old-password'),
+            'role_id' => $role->id,
+            'status' => 'en_attente_validation',
+            'statut' => 'en_attente_validation',
+        ]);
+
+        config([
+            'admin.email' => $admin->email,
+            'admin.password' => 'admin-secret',
+        ]);
+        app(AdminSeeder::class)->run();
+        $admin->refresh();
+
+        $response = $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'admin-secret',
+        ]);
+
+        $this->assertSame('valide', $admin->status);
+        $this->assertSame('valide', $admin->statut);
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_login_error_is_visible_after_invalid_credentials(): void
+    {
+        $this->from('/login')->post('/login', [
+            'email' => 'unknown-user@example.com',
+            'password' => 'wrong-password',
+        ])->assertRedirect('/login')->assertSessionHasErrors('email');
+
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('Les identifiants fournis ne correspondent pas à nos enregistrements.');
     }
 
     public function test_guest_can_access_registration_page(): void

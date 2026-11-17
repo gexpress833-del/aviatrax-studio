@@ -20,6 +20,22 @@
         <form class="login-form" action="{{ route('login') }}" method="POST">
             @csrf
 
+            @if (session('success'))
+                <div class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200" role="status">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
+                    <ul class="list-inside list-disc space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="field-group">
                 <label for="email">Adresse e-mail</label>
                 <input id="email" name="email" type="email" required autofocus value="{{ old('email') }}" placeholder="name@gmail.com">

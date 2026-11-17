@@ -89,6 +89,7 @@ class TestAccountsSeeder extends Seeder
                     'name' => $account['name'],
                     'telephone' => $account['telephone'],
                     'password' => Hash::make($account['password']),
+                    'status' => $account['statut'],
                     'statut' => $account['statut'],
                     'role_id' => $role->id,
                 ]
@@ -98,6 +99,7 @@ class TestAccountsSeeder extends Seeder
                 'name' => $account['name'],
                 'telephone' => $account['telephone'],
                 'password' => Hash::make($account['password']),
+                'status' => $account['statut'],
                 'statut' => $account['statut'],
                 'role_id' => $role->id,
             ]);

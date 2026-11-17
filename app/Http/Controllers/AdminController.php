@@ -46,7 +46,7 @@ class AdminController extends Controller
     {
         Gate::authorize('admin-access');
         
-        $user->update(['statut' => 'valide']);
+        $user->update(['status' => 'valide', 'statut' => 'valide']);
 
         Log::info('Utilisateur validé', [
             'user_id' => $user->id,
@@ -95,7 +95,7 @@ class AdminController extends Controller
     {
         Gate::authorize('admin-access');
         
-        $user->update(['statut' => 'suspendu']);
+        $user->update(['status' => 'suspendu', 'statut' => 'suspendu']);
 
         Log::info('Utilisateur suspendu', [
             'user_id' => $user->id,
@@ -109,7 +109,7 @@ class AdminController extends Controller
     {
         Gate::authorize('admin-access');
         
-        $user->update(['statut' => 'valide']);
+        $user->update(['status' => 'valide', 'statut' => 'valide']);
 
         Log::info('Utilisateur réactivé', [
             'user_id' => $user->id,
@@ -236,6 +236,7 @@ class AdminController extends Controller
             'password' => Hash::make($request->password),
             'telephone' => $request->telephone,
             'role_id' => $request->role_id,
+            'status' => 'valide',
             'statut' => 'valide',
         ]);
 

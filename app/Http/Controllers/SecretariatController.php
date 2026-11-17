@@ -72,6 +72,7 @@ class SecretariatController extends Controller
             'telephone' => $request->telephone,
             'password' => Hash::make($request->password),
             'role_id' => $roleArtiste->id,
+            'status' => 'valide',
             'statut' => 'valide',
         ]);
 
@@ -116,6 +117,7 @@ class SecretariatController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'telephone' => $request->telephone,
+            'status' => $request->statut,
             'statut' => $request->statut,
         ]);
 
@@ -136,7 +138,7 @@ class SecretariatController extends Controller
             return redirect()->back()->with('error', 'Utilisateur non trouvé.');
         }
 
-        $artiste->update(['statut' => 'suspendu']);
+        $artiste->update(['status' => 'suspendu', 'statut' => 'suspendu']);
 
         Log::info('Artiste suspendu par le secrétariat', [
             'artiste_id' => $artiste->id,
@@ -155,7 +157,7 @@ class SecretariatController extends Controller
             return redirect()->back()->with('error', 'Utilisateur non trouvé.');
         }
 
-        $artiste->update(['statut' => 'valide']);
+        $artiste->update(['status' => 'valide', 'statut' => 'valide']);
 
         Log::info('Artiste réactivé par le secrétariat', [
             'artiste_id' => $artiste->id,

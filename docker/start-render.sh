@@ -16,6 +16,7 @@ export APP_URL="${APP_URL:-${external_url}}"
 export ASSET_URL="${ASSET_URL:-${external_url}}"
 
 php artisan migrate --force
+php artisan db:seed --force
 php artisan config:cache
 php artisan view:cache
 
