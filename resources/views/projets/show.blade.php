@@ -117,7 +117,7 @@
                                         <div>
                                             <label for="etape" class="block text-sm font-medium text-blue-300">Changer l'étape</label>
                                             <select name="etape" id="etape" required 
-                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                                    class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-indigo-400 focus:ring-indigo-500">
                                                 <option value="enregistrement" {{ $projet->etape == 'enregistrement' ? 'selected' : '' }}>Enregistrement</option>
                                                 <option value="mixage" {{ $projet->etape == 'mixage' ? 'selected' : '' }}>Mixage</option>
                                                 <option value="mastering" {{ $projet->etape == 'mastering' ? 'selected' : '' }}>Mastering</option>
@@ -130,7 +130,7 @@
                                         <div>
                                             <label for="commentaire" class="block text-sm font-medium text-blue-300">Commentaire (optionnel)</label>
                                             <textarea name="commentaire" id="commentaire" rows="2" 
-                                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                                                      class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-indigo-400 focus:ring-indigo-500"></textarea>
                                         </div>
                                         <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
                                             Mettre à jour l'étape

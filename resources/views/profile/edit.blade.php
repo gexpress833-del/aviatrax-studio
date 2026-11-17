@@ -10,7 +10,7 @@
         <div class="mb-4 bg-green-600 text-white px-4 py-3 rounded">{{ session('success') }}</div>
     @endif
 
-    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="bg-[#101828] shadow rounded-lg p-6 space-y-6">
+    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6 rounded-xl border border-slate-700 bg-slate-900/90 p-6 shadow-xl shadow-slate-950/30">
         @csrf
         <div class="flex flex-col items-center space-y-4">
             <div>

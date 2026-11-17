@@ -5,40 +5,40 @@
 @section('content')
 <div class="max-w-2xl mx-auto">
     <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Créer un nouveau projet</h1>
-        <a href="{{ route('studio.dashboard') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+        <h1 class="text-2xl font-bold text-blue-300">Créer un nouveau projet</h1>
+        <a href="{{ route('studio.dashboard') }}" class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-200 transition hover:bg-slate-700">
             Retour au dashboard
         </a>
     </div>
 
-    <div class="bg-white shadow rounded-lg">
+    <div class="rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
         <div class="px-4 py-5 sm:p-6">
             <form action="{{ route('studio.projets.store') }}" method="POST">
                 @csrf
                 
                 <div class="space-y-6">
                     <div>
-                        <label for="titre" class="block text-sm font-medium text-gray-700">Titre du projet</label>
+                           <label for="titre" class="block text-sm font-medium text-slate-200">Titre du projet</label>
                         <input type="text" name="titre" id="titre" value="{{ old('titre') }}" required
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                               class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-blue-400 focus:ring-blue-500 placeholder:text-slate-500">
                         @error('titre')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <label for="description" class="block text-sm font-medium text-slate-200">Description</label>
                         <textarea name="description" id="description" rows="4" required
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
+                                  class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-blue-400 focus:ring-blue-500 placeholder:text-slate-500">{{ old('description') }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label for="artiste_id" class="block text-sm font-medium text-gray-700">Artiste</label>
+                        <label for="artiste_id" class="block text-sm font-medium text-slate-200">Artiste</label>
                         <select name="artiste_id" id="artiste_id" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-blue-400 focus:ring-blue-500">
                             <option value="">Sélectionner un artiste</option>
                             @foreach($artistes as $artiste)
                                 <option value="{{ $artiste->id }}" {{ old('artiste_id') == $artiste->id ? 'selected' : '' }}>
@@ -53,25 +53,25 @@
 
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
-                            <label for="date_debut" class="block text-sm font-medium text-gray-700">Date de début</label>
+                            <label for="date_debut" class="block text-sm font-medium text-slate-200">Date de début</label>
                             <input type="date" name="date_debut" id="date_debut" value="{{ old('date_debut') }}" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-blue-400 focus:ring-blue-500">
                             @error('date_debut')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="date_fin_prevue" class="block text-sm font-medium text-gray-700">Date de fin prévue</label>
+                            <label for="date_fin_prevue" class="block text-sm font-medium text-slate-200">Date de fin prévue</label>
                             <input type="date" name="date_fin_prevue" id="date_fin_prevue" value="{{ old('date_fin_prevue') }}" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 text-white shadow-sm focus:border-blue-400 focus:ring-blue-500">
                             @error('date_fin_prevue')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -79,8 +79,8 @@
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-yellow-800">Étapes de production</h3>
-                                <div class="mt-2 text-sm text-yellow-700">
+                                <h3 class="text-sm font-medium text-amber-200">Étapes de production</h3>
+                                <div class="mt-2 text-sm text-amber-100/90">
                                     <p>Le projet sera créé avec l'étape "Enregistrement" (bleu) par défaut. Vous pourrez ensuite mettre à jour les étapes suivantes :</p>
                                     <ul class="mt-2 list-disc list-inside">
                                         <li>Mixage (rose)</li>
@@ -95,7 +95,7 @@
 
                     <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                         <a href="{{ route('studio.dashboard') }}" 
-                           class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                           class="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-slate-200 transition hover:bg-slate-700">
                             Annuler
                         </a>
                         <button type="submit" 

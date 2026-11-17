@@ -14,7 +14,7 @@
             @if($projets->count())
                 <div class="space-y-4">
                     @foreach($projets as $projet)
-                        <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="rounded-lg border border-slate-700 bg-slate-800/80 p-4">
                             <h5><strong>{{ $projet->titre }}</strong></h5>
                             <p>Artiste : {{ $projet->artiste?->name ?? 'Non assigné' }}</p>
                             <p>
@@ -27,7 +27,7 @@
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500">Aucun projet n'est actuellement assigné.</p>
+                <p class="text-slate-400">Aucun projet n'est actuellement assigné.</p>
             @endif
         </div>
     </div>

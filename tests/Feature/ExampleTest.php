@@ -206,7 +206,11 @@ class ExampleTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
 
-        $response->assertOk();
+        $response->assertOk()
+            ->assertSee('Dashboard Responsable Studio')
+            ->assertSee('bg-slate-900', false)
+            ->assertDontSee('bg-white', false)
+            ->assertDontSee('bg-gray-50', false);
     }
 
     public function test_responsable_studio_user_can_manage_artist_accounts(): void

@@ -6,12 +6,12 @@
 <div class="space-y-6 text-white">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 class="text-2xl font-bold text-blue-400 mb-6">Logs d'activité</h2>
-        <a href="{{ route('admin.dashboard') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+        <a href="{{ route('admin.dashboard') }}" class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-200 transition hover:bg-slate-700">
             Retour au dashboard
         </a>
     </div>
 
-    <div class="bg-[#101828] overflow-hidden shadow rounded-lg">
+    <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-orange-400 mb-4">Historique des actions</h3>
             
@@ -41,7 +41,7 @@
                     </table>
                 </div>
                 
-                <div class="mt-4 text-sm text-gray-500">
+                <div class="mt-4 break-words text-sm text-slate-400">
                     <p>Fichier : {{ storage_path('logs/laravel.log') }}</p>
                     <p>Dernière mise à jour : {{ file_exists(storage_path('logs/laravel.log')) ? date('d/m/Y H:i:s', filemtime(storage_path('logs/laravel.log'))) : 'Fichier non trouvé' }}</p>
                 </div>
@@ -57,7 +57,7 @@
 
     <!-- Statistiques des logs -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div class="bg-[#101828] overflow-hidden shadow rounded-lg">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -67,15 +67,15 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total des lignes</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ count($logs) }}</dd>
+                            <dt class="text-sm font-medium text-slate-400 truncate">Total des lignes</dt>
+                            <dd class="text-lg font-medium text-slate-100">{{ count($logs) }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-[#101828] overflow-hidden shadow rounded-lg">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -85,15 +85,15 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Connexions</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ count(array_filter($logs, function($log) { return strpos($log, 'Connexion utilisateur') !== false; })) }}</dd>
+                            <dt class="text-sm font-medium text-slate-400 truncate">Connexions</dt>
+                            <dd class="text-lg font-medium text-slate-100">{{ count(array_filter($logs, function($log) { return strpos($log, 'Connexion utilisateur') !== false; })) }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-[#101828] overflow-hidden shadow rounded-lg">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -103,8 +103,8 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Projets créés</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ count(array_filter($logs, function($log) { return strpos($log, 'Nouveau projet créé') !== false; })) }}</dd>
+                            <dt class="text-sm font-medium text-slate-400 truncate">Projets créés</dt>
+                            <dd class="text-lg font-medium text-slate-100">{{ count(array_filter($logs, function($log) { return strpos($log, 'Nouveau projet créé') !== false; })) }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
     </div>
 
     <!-- Actions -->
-    <div class="bg-[#101828] shadow rounded-lg">
+    <div class="rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-orange-400 mb-4">Actions</h3>
             <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
