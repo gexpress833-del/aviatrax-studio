@@ -96,5 +96,9 @@ Route::middleware('auth')->group(function () {
 
 // 🔁 Route par défaut
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return view('welcome');
 });

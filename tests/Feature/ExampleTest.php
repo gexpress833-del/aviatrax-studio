@@ -19,11 +19,12 @@ class ExampleTest extends TestCase
      * A guest visiting the root is redirected to the authenticated dashboard,
      * which then requires login.
      */
-    public function test_the_application_redirects_guests_to_dashboard(): void
+    public function test_the_application_shows_the_public_landing_page_for_guests(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect('/dashboard');
+        $response->assertOk();
+        $response->assertSee('Aviatrax Studio');
     }
 
     public function test_the_dashboard_requires_authentication(): void
