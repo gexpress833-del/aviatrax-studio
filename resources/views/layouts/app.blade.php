@@ -5,27 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Aviatrax Studio')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-blue': '#3b82f6',
-                        'brand-orange': '#f59e0b',
-                        'brand-slate': '#0f172a',
-                        'panel': '#111827',
-                        'panel-soft': '#1f2937',
-                        'etape-enregistrement': '#60a5fa',
-                        'etape-mixage': '#f472b6',
-                        'etape-mastering': '#fbbf24',
-                        'etape-distribution-cours': '#fb923c',
-                        'etape-distribution-terminee': '#4ade80',
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         html, body {
             max-width: 100%;
