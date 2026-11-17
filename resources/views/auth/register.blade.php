@@ -15,6 +15,15 @@
             </div>
         </div>
 
+        <div class="mt-5">
+            <a href="{{ url('/') }}" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition-colors hover:text-orange-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Retour à l’accueil
+            </a>
+        </div>
+
         <h2 class="login-title">Inscription</h2>
 
         <form class="login-form" action="{{ route('register') }}" method="POST">

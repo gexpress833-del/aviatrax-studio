@@ -68,6 +68,13 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertSee('bg-slate-900/90', false)
             ->assertDontSee('bg-white', false);
+
+        $this->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('bg-slate-900/90', false)
+            ->assertDontSee('bg-white', false)
+            ->assertDontSee('bg-gray-50 ', false)
+            ->assertDontSee('bg-blue-50 ', false);
     }
 
     public function test_login_error_is_visible_after_invalid_credentials(): void
@@ -87,6 +94,21 @@ class ExampleTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertOk();
+    }
+
+    public function test_login_and_registration_pages_link_back_to_landing_page(): void
+    {
+        $landingPageUrl = url('/');
+
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('href="' . $landingPageUrl . '"', false)
+            ->assertSee('Retour à l’accueil');
+
+        $this->get('/register')
+            ->assertOk()
+            ->assertSee('href="' . $landingPageUrl . '"', false)
+            ->assertSee('Retour à l’accueil');
     }
 
     public function test_pending_artist_is_redirected_to_waiting_page_after_login(): void
