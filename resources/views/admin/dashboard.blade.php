@@ -179,6 +179,71 @@
         </div>
     </div>
 
+    @if($distributionProjects->isNotEmpty())
+        <section class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-orange-300">Sorties en distribution directe</h3>
+                <p class="mt-1 text-sm text-slate-400">Examinez chaque dépôt, puis fixez la date officielle lors de son approbation.</p>
+                <div class="mt-4 space-y-3">
+                    @foreach($distributionProjects as $distributionProject)
+                        <article class="flex flex-col gap-4 rounded-lg border border-slate-700 bg-slate-800/70 p-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div class="flex min-w-0 items-center gap-3">
+                                @if($distributionProject->cover_art_url)
+                                    <img src="{{ $distributionProject->cover_art_url }}" alt="Pochette de {{ $distributionProject->title }}" class="h-14 w-14 rounded-md object-cover">
+                                @endif
+                                <div class="min-w-0">
+                                    <h4 class="truncate font-semibold text-slate-100">{{ $distributionProject->title }}</h4>
+                                    <p class="text-sm text-slate-300">Artiste : {{ $distributionProject->artist?->stage_name ?: $distributionProject->artist?->name }}</p>
+                                    <p class="text-xs text-slate-400">État : {{ $distributionProject->distribution_status === 'approved' ? 'Approuvé' : ($distributionProject->distribution_status === 'rejected' ? 'À corriger' : 'À examiner') }}</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('admin.distribution-projects.review', $distributionProject) }}" method="POST" class="flex flex-col gap-2 sm:flex-row sm:items-end">
+                                @csrf
+                                @method('PUT')
+                                <div>
+                                    <label for="release-date-{{ $distributionProject->id }}" class="mb-1 block text-xs font-medium text-slate-300">Date de sortie officielle</label>
+                                    <input id="release-date-{{ $distributionProject->id }}" type="date" name="release_date" value="{{ $distributionProject->release_date?->format('Y-m-d') }}" class="rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
+                                </div>
+                                <div>
+                                    <label for="distribution-status-{{ $distributionProject->id }}" class="mb-1 block text-xs font-medium text-slate-300">Décision</label>
+                                    <select id="distribution-status-{{ $distributionProject->id }}" name="distribution_status" required class="rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
+                                        <option value="approved">Approuver</option>
+                                        <option value="rejected">Demander une correction</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">Enregistrer</button>
+                            </form>
+                            <div class="mt-3 border-t border-slate-700 pt-3 xl:min-w-64">
+                                <p class="mb-2 text-xs font-medium text-slate-300">Liens des plateformes publiées</p>
+                                @if($distributionProject->distributions->isNotEmpty())
+                                    <ul class="mb-3 space-y-1 text-xs text-slate-400">
+                                        @foreach($distributionProject->distributions as $distribution)
+                                            <li>{{ $distribution->platform_name }}: {{ $distribution->status === 'published' ? 'en ligne' : 'en attente' }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                                <form action="{{ route('admin.distribution-projects.platforms.store', $distributionProject) }}" method="POST" class="flex flex-col gap-2 sm:flex-row">
+                                    @csrf
+                                    <select name="platform_name" required class="min-w-0 rounded-md border border-slate-600 bg-slate-950 px-2 py-2 text-sm text-white">
+                                        @foreach(['Spotify', 'Apple Music', 'Boomplay', 'Deezer', 'TikTok', 'YouTube Music', 'Audiomack'] as $platform)
+                                            <option value="{{ $platform }}">{{ $platform }}</option>
+                                        @endforeach
+                                    </select>
+                                    <input type="url" name="platform_url" required placeholder="https://…" class="min-w-0 flex-1 rounded-md border border-slate-600 bg-slate-950 px-2 py-2 text-sm text-white placeholder:text-slate-500">
+                                    <select name="status" class="rounded-md border border-slate-600 bg-slate-950 px-2 py-2 text-sm text-white">
+                                        <option value="published">En ligne</option>
+                                        <option value="pending">En attente</option>
+                                    </select>
+                                    <button type="submit" class="rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-sm font-medium text-white hover:bg-slate-600">Ajouter le lien</button>
+                                </form>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     <!-- Actions rapides -->
     <div class="rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">
         <div class="px-4 py-5 sm:p-6">
@@ -234,5 +299,5 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
+
+    <!-- Demand

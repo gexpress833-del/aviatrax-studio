@@ -86,6 +86,9 @@
                                     <span class="px-3 py-1 text-sm font-medium rounded-full text-white" style="background-color: {{ $projet->etape_color }}">
                                         {{ $projet->etape_label }}
                                     </span>
+                                    @if($projet->release_date)
+                                        <span class="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">Sortie prévue le {{ $projet->release_date->format('d/m/Y') }}</span>
+                                    @endif
                                     <a href="{{ route('projets.show', $projet) }}" class="text-indigo-300 hover:text-indigo-200">Voir détails</a>
                                 </div>
                             </div>
@@ -101,6 +104,81 @@
             @endif
         </div>
     </div>
+
+    <section id="release-hub" class="rounded-xl border border-slate-700 bg-slate-900/90 p-5 shadow-xl shadow-slate-950/30 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Distribution directe</p>
+                <h2 class="mt-1 text-xl font-semibold text-white">Release Hub</h2>
+                <p class="mt-1 text-sm text-slate-400">Envoyez un master déjà prêt et sa pochette pour validation de l’équipe.</p>
+            </div>
+            @if($activeSubscription)
+                <span class="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-300">Abonnement actif jusqu’au {{ $activeSubscription->ends_at->format('d/m/Y') }}</span>
+            @else
+                <a href="{{ route('subscriptions.index') }}" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Voir l’abonnement de distribution</a>
+            @endif
+        </div>
+
+        @if($activeSubscription)
+            <form action="{{ route('distribution.projects.store') }}" method="POST" enctype="multipart/form-data" class="mt-5 grid grid-cols-1 gap-4 border-t border-slate-700 pt-5 md:grid-cols-2">
+                @csrf
+                <div class="md:col-span-2">
+                    <label for="distribution-title" class="mb-1.5 block text-sm font-medium text-slate-200">Titre de sortie</label>
+                    <input id="distribution-title" name="title" value="{{ old('title') }}" required maxlength="255" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
+                    @error('title')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror
+                </div>
+                <div class="md:col-span-2">
+                    <label for="distribution-description" class="mb-1.5 block text-sm font-medium text-slate-200">Description (facultative)</label>
+                    <textarea id="distribution-description" name="description" rows="3" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">{{ old('description') }}</textarea>
+                </div>
+                <div>
+                    <label for="distribution-master" class="mb-1.5 block text-sm font-medium text-slate-200">Master audio</label>
+                    <input id="distribution-master" name="master" type="file" accept=".mp3,.wav,.aac,.flac,.m4a" required class="block w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-slate-700 file:px-3 file:py-2 file:text-slate-100 hover:file:bg-slate-600">
+                    @error('master')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label for="distribution-cover" class="mb-1.5 block text-sm font-medium text-slate-200">Pochette</label>
+                    <input id="distribution-cover" name="cover_art" type="file" accept="image/jpeg,image/png,image/webp" required class="block w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-slate-700 file:px-3 file:py-2 file:text-slate-100 hover:file:bg-slate-600">
+                    @error('cover_art')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white transition hover:bg-indigo-500">Envoyer pour validation</button>
+                </div>
+            </form>
+        @endif
+
+        @if($distributionProjects->isNotEmpty())
+            <div class="mt-5 space-y-3">
+                @foreach($distributionProjects as $distributionProject)
+                    <article class="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-800/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex min-w-0 items-center gap-3">
+                            @if($distributionProject->cover_art_url)
+                                <img src="{{ $distributionProject->cover_art_url }}" alt="Pochette de {{ $distributionProject->title }}" class="h-14 w-14 rounded-md object-cover">
+                            @endif
+                            <div class="min-w-0">
+                                <h3 class="truncate font-medium text-white">{{ $distributionProject->title }}</h3>
+                                <p class="text-sm text-slate-400">{{ ucfirst(str_replace('_', ' ', $distributionProject->current_stage->value)) }}</p>
+                            </div>
+                        </div>
+                        @if($distributionProject->release_date)
+                            <p class="text-sm font-medium text-emerald-300">Sortie officielle : {{ $distributionProject->release_date->format('d/m/Y') }}</p>
+                        @else
+                            <p class="text-sm text-slate-400">Date de sortie en attente de l’administration</p>
+                        @endif
+                        @if($distributionProject->distributions->where('status', 'published')->isNotEmpty())
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($distributionProject->distributions->where('status', 'published') as $distribution)
+                                    @if($distribution->platform_url)
+                                        <a href="{{ $distribution->platform_url }}" target="_blank" rel="noopener noreferrer" class="rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-200 hover:bg-indigo-500/20">{{ $distribution->platform_name }}</a>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
 
     @if($projets->count() > 0)
         <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90 shadow-xl shadow-slate-950/30">

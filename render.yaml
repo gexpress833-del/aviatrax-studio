@@ -61,6 +61,12 @@ services:
         value: "true"
       - key: CLOUDINARY_PREFIX
         value: aviatrax
+      - key: FLEXPAY_BASE_URL
+        value: https://backend.flexpay.cd
+      - key: FLEXPAY_TOKEN
+        sync: false
+      - key: FLEXPAY_MERCHANT
+        sync: false
       - key: LOG_CHANNEL
         value: stack
       - key: LOG_LEVEL

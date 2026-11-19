@@ -73,6 +73,12 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $projets = Projet::where('artiste_id', $user->id)->with(['responsable'])->get();
+        $distributionProjects = $user->projects()
+            ->where('project_type', 'distribution_only')
+            ->with('distributions')
+            ->latest()
+            ->get();
+        $activeSubscription = $user->activeSubscription()->first();
 
         $projetsParEtape = [
             'enregistrement' => $projets->where('etape', 'enregistrement')->count(),
@@ -82,7 +88,7 @@ class DashboardController extends Controller
             'distribution_terminee' => $projets->where('etape', 'distribution_terminee')->count(),
         ];
 
-        return view('dashboard.artiste', compact('projets', 'projetsParEtape'));
+        return view('dashboard.artiste', compact('projets', 'projetsParEtape', 'distributionProjects', 'activeSubscription'));
     }
 
     // Nouvelle méthode responsable

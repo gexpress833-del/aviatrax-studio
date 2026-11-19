@@ -59,6 +59,7 @@
                         <a href="{{ route('projets.index') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Projets</a>
                         @if($user = auth()->user())
                             @if($user->isArtiste())
+                                <a href="{{ route('subscriptions.index') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Abonnement</a>
                                 <a href="{{ route('wallet') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Portefeuille</a>
                             @endif
                             @if($user->isAdmin())
@@ -157,6 +158,7 @@
                     <a href="{{ route('dashboard') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Dashboard</a>
                     <a href="{{ route('projets.index') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Projets</a>
                     @if($user->isArtiste())
+                        <a href="{{ route('subscriptions.index') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Abonnement</a>
                         <a href="{{ route('wallet') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Portefeuille</a>
                     @endif
                     @if($user->canManageArtistes())
@@ -243,6 +245,16 @@
                     : form.querySelector('button[type="submit"]:not([disabled]), button:not([type]):not([disabled])');
 
                 setActionButtonLoading(submitButton, true);
+
+                window.setTimeout(function () {
+                    setActionButtonLoading(submitButton, false);
+                }, 25000);
+            });
+
+            window.addEventListener('pageshow', function () {
+                document.querySelectorAll('button.action-loading').forEach(function (button) {
+                    setActionButtonLoading(button, false);
+                });
             });
 
             const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -386,4 +398,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

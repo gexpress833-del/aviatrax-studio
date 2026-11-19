@@ -94,6 +94,21 @@ class User extends Authenticatable
         return $this->hasMany(Project::class, 'artist_id');
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->subscriptions()->active()->latest('ends_at');
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscriptions()->active()->exists();
+    }
+
     public function managedProjects()
     {
         return $this->hasMany(Project::class, 'studio_manager_id');

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -35,4 +34,9 @@ return [
         ],
     ],
 
+    'flexpay' => [
+        'base_url' => env('FLEXPAY_BASE_URL'),
+        'token' => env('FLEXPAY_TOKEN'),
+        'merchant' => env('FLEXPAY_MERCHANT'),
+    ],
 ];

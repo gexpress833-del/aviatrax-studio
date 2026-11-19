@@ -57,6 +57,16 @@
                                     <p class="mt-1 text-sm text-white">{{ $projet->date_fin_prevue->format('d/m/Y') }}</p>
                                 </div>
                             @endif
+                            @if($projet->release_date)
+                                <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 sm:col-span-2">
+                                    <label class="block text-sm font-medium text-emerald-300">Date de sortie officielle</label>
+                                    <p class="mt-1 text-lg font-semibold text-white">{{ $projet->release_date->format('d/m/Y') }}</p>
+                                </div>
+                            @elseif(auth()->user()->isArtiste())
+                                <div class="rounded-lg border border-slate-700 bg-slate-900 p-3 sm:col-span-2">
+                                    <p class="text-sm text-slate-400">La date de sortie officielle sera communiquée par l’administration.</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -110,6 +120,17 @@
 
                     @can('update', $projet)
                         @if(!auth()->user()->isArtiste())
+                            @if(auth()->user()->isAdmin())
+                                <form action="{{ route('admin.projects.release-date', $projet) }}" method="POST" class="mt-5 border-t border-slate-700 pt-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <label for="release-date" class="block text-sm font-medium text-blue-300">Date de sortie officielle</label>
+                                    <div class="mt-2 flex gap-2">
+                                        <input id="release-date" type="date" name="release_date" value="{{ $projet->release_date?->format('Y-m-d') }}" class="min-w-0 flex-1 rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500">Enregistrer</button>
+                                    </div>
+                                </form>
+                            @endif
                             <div class="mt-4">
                                 <form action="{{ route('projets.update-etape', $projet) }}" method="POST">
                                     @csrf

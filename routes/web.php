@@ -7,6 +7,8 @@ use App\Http\Controllers\ProjetController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SecretariatController;
 use App\Http\Controllers\StudioController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\DistributionProjectController;
 
 // 🔐 Authentification
 Route::get('/compte-en-attente', [AuthController::class, 'pendingApproval'])->name('account.pending');
@@ -19,6 +21,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/payments/webhook', [SubscriptionController::class, 'webhook'])
+    ->name('payments.webhook')
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
 
 // 🌐 Routes protégées
 Route::middleware('auth')->group(function () {
@@ -51,6 +56,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/feed', [App\Http\Controllers\UserController::class, 'notificationFeed'])->name('notifications.feed');
     Route::post('/notifications/{notification}/read', [App\Http\Controllers\UserController::class, 'markNotificationAsRead'])->name('notifications.read');
 
+    Route::middleware('role:artiste')->group(function () {
+        Route::get('/abonnement', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::post('/abonnement/checkout', [SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
+        Route::post('/abonnement/{subscription}/verify', [SubscriptionController::class, 'verify'])->name('subscriptions.verify');
+        Route::post('/abonnement/{subscription}/annuler', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        Route::post('/distribution/projets', [DistributionProjectController::class, 'store'])->name('distribution.projects.store');
+    });
+
     // 🛡️ Administration
     Route::middleware('role:administrateur')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -62,9 +75,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.role');
         Route::post('/users/{user}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{user}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
+        Route::put('/projets/{projet}/date-sortie', [AdminController::class, 'updateProjectReleaseDate'])->name('projects.release-date');
+        Route::put('/distributions/{project}/validation', [AdminController::class, 'reviewDistributionProject'])->name('distribution-projects.review');
+        Route::post('/distributions/{project}/platforms', [AdminController::class, 'saveDistributionPlatform'])->name('distribution-projects.platforms.store');
         Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
         Route::get('/settings/currency', [AdminController::class, 'currencySettings'])->name('currency.edit');
         Route::put('/settings/currency', [AdminController::class, 'updateCurrencySettings'])->name('currency.update');
+        Route::put('/withdrawals/{withdrawal}/approve', [AdminController::class, 'approveWithdrawal'])->name('withdrawals.approve');
+        Route::put('/withdrawals/{withdrawal}/reject', [AdminController::class, 'rejectWithdrawal'])->name('withdrawals.reject');
     });
 
     // 📋 Gestion des artistes - autorisée au secrétariat, responsable studio et admin

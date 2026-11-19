@@ -115,6 +115,7 @@ class ProjetController extends Controller
             'etape' => 'required|in:enregistrement,mixage,mastering,distribution_en_cours,distribution_terminee',
             'date_debut' => 'nullable|date',
             'date_fin_prevue' => 'nullable|date|after:date_debut',
+            'release_date' => 'prohibited',
             'date_fin_reelle' => 'nullable|date|after:date_debut',
             'statut' => 'required|in:actif,termine,suspendu',
         ]);

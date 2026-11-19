@@ -14,9 +14,9 @@ class CloudinaryMediaService
     {
         $this->cloudinary = $cloudinary ?? new Cloudinary([
             'cloud' => [
-                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-                'api_key' => env('CLOUDINARY_API_KEY'),
-                'api_secret' => env('CLOUDINARY_API_SECRET'),
+                'cloud_name' => config('filesystems.disks.cloudinary.cloud'),
+                'api_key' => config('filesystems.disks.cloudinary.key'),
+                'api_secret' => config('filesystems.disks.cloudinary.secret'),
             ],
             'url' => [
                 'secure' => true,
@@ -71,11 +71,11 @@ class CloudinaryMediaService
             'resource_type' => $resourceType,
         ];
 
-        $signature = hash('sha256', http_build_query($params) . env('CLOUDINARY_API_SECRET'));
+        $signature = hash('sha256', http_build_query($params) . config('filesystems.disks.cloudinary.secret'));
 
         return sprintf(
             'https://res.cloudinary.com/%s/%s/upload/%s?public_id=%s&timestamp=%s&signature=%s',
-            env('CLOUDINARY_CLOUD_NAME'),
+            config('filesystems.disks.cloudinary.cloud'),
             $resourceType,
             'authenticated',
             urlencode($publicId),

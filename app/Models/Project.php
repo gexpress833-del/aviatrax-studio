@@ -19,7 +19,10 @@ class Project extends Model
         'slug',
         'artist_id',
         'studio_manager_id',
+        'project_type',
         'current_stage',
+        'release_date',
+        'distribution_status',
         'start_date',
         'expected_end_date',
         'cover_art_url',
@@ -30,6 +33,7 @@ class Project extends Model
 
     protected $casts = [
         'current_stage' => ProjectStage::class,
+        'release_date' => 'date',
         'start_date' => 'date',
         'expected_end_date' => 'date',
     ];
@@ -62,5 +66,10 @@ class Project extends Model
     public function pointTransactions(): HasMany
     {
         return $this->hasMany(PointTransaction::class);
+    }
+
+    public function isDistributionOnly(): bool
+    {
+        return $this->project_type === 'distribution_only';
     }
 }

@@ -7,6 +7,8 @@ use App\Models\Wallet;
 use App\Models\PointTransaction;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\WithdrawalRequest;
+use App\Enums\WithdrawalStatus;
 use Illuminate\Support\Facades\DB;
 
 class WalletService
@@ -91,5 +93,55 @@ class WalletService
             'CDF' => round($usdAmount * $this->cdfPerDollar(), 2),
             default => throw new \InvalidArgumentException('Devise non prise en charge.'),
         };
+    }
+
+    public function approveWithdrawal(WithdrawalRequest $withdrawal, int $processedBy, ?string $transactionReference = null): WithdrawalRequest
+    {
+        if ($withdrawal->status !== WithdrawalStatus::EN_ATTENTE) {
+            throw new \RuntimeException('Cette demande de retrait a déjà été traitée.');
+        }
+
+        return DB::transaction(function () use ($withdrawal, $processedBy, $transactionReference) {
+            $locked = WithdrawalRequest::whereKey($withdrawal->id)->lockForUpdate()->firstOrFail();
+
+            if ($locked->status !== WithdrawalStatus::EN_ATTENTE) {
+                throw new \RuntimeException('Cette demande de retrait a déjà été traitée.');
+            }
+
+            $locked->update([
+                'status' => WithdrawalStatus::PAYE,
+                'processed_by' => $processedBy,
+                'transaction_reference' => $transactionReference,
+            ]);
+
+            return $locked->fresh();
+        });
+    }
+
+    public function rejectWithdrawal(WithdrawalRequest $withdrawal, int $processedBy, ?string $reason = null): WithdrawalRequest
+    {
+        if ($withdrawal->status !== WithdrawalStatus::EN_ATTENTE) {
+            throw new \RuntimeException('Cette demande de retrait a déjà été traitée.');
+        }
+
+        return DB::transaction(function () use ($withdrawal, $processedBy, $reason) {
+            $locked = WithdrawalRequest::whereKey($withdrawal->id)->lockForUpdate()->firstOrFail();
+
+            $locked->update([
+                'status' => WithdrawalStatus::REJETE,
+                'processed_by' => $processedBy,
+                'transaction_reference' => $reason,
+            ]);
+
+            $this->credit(
+                $locked->user,
+                (int) $locked->points_amount,
+                null,
+                'Restitution des points après rejet du retrait',
+                $processedBy
+            );
+
+            return $locked->fresh();
+        });
     }
 }

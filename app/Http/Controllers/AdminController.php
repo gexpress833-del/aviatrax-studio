@@ -6,7 +6,10 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\Projet;
+use App\Models\Project;
+use App\Models\ProjectDistribution;
 use App\Services\WalletService;
+use App\Models\WithdrawalRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -28,8 +31,17 @@ class AdminController extends Controller
 
         $usersEnAttente = User::where('statut', 'en_attente_validation')->get();
         $projetsRecents = Projet::with(['artiste', 'responsable'])->latest()->take(5)->get();
+        $distributionProjects = Project::with('artist')
+            ->where('project_type', 'distribution_only')
+            ->latest()
+            ->take(10)
+            ->get();
+        $withdrawalRequests = WithdrawalRequest::with('user')
+            ->where('status', 'en_attente')
+            ->latest()
+            ->get();
 
-        return view('admin.dashboard', compact('stats', 'usersEnAttente', 'projetsRecents'));
+        return view('admin.dashboard', compact('stats', 'usersEnAttente', 'projetsRecents', 'distributionProjects', 'withdrawalRequests'));
     }
 
     public function users()
@@ -119,6 +131,101 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Utilisateur réactivé avec succès.');
     }
 
+    public function updateProjectReleaseDate(Request $request, Projet $projet)
+    {
+        Gate::authorize('admin-access');
+
+        $validated = $request->validate([
+            'release_date' => 'nullable|date',
+        ]);
+
+        $projet->update(['release_date' => $validated['release_date'] ?? null]);
+
+        Log::info('Date de sortie officielle mise à jour', [
+            'project_id' => $projet->id,
+            'release_date' => $validated['release_date'] ?? null,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->back()->with('success', 'La date de sortie officielle a été mise à jour.');
+    }
+
+    public function updateDistributionProjectReleaseDate(Request $request, Project $project)
+    {
+        Gate::authorize('admin-access');
+
+        $validated = $request->validate([
+            'release_date' => 'nullable|date',
+        ]);
+
+        $project->update(['release_date' => $validated['release_date'] ?? null]);
+
+        Log::info('Date de sortie officielle de la distribution mise à jour', [
+            'project_id' => $project->id,
+            'release_date' => $validated['release_date'] ?? null,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->back()->with('success', 'La date de sortie officielle a été mise à jour.');
+    }
+
+    public function reviewDistributionProject(Request $request, Project $project)
+    {
+        Gate::authorize('admin-access');
+        abort_unless($project->project_type === 'distribution_only', 404);
+
+        $validated = $request->validate([
+            'distribution_status' => 'required|in:approved,rejected',
+            'release_date' => 'required_if:distribution_status,approved|nullable|date',
+        ]);
+
+        $project->update([
+            'distribution_status' => $validated['distribution_status'],
+            'release_date' => $validated['distribution_status'] === 'approved' ? $validated['release_date'] : null,
+        ]);
+
+        Log::info('Projet de distribution directe examiné', [
+            'project_id' => $project->id,
+            'distribution_status' => $project->distribution_status,
+            'release_date' => $project->release_date?->toDateString(),
+            'reviewed_by' => Auth::id(),
+        ]);
+
+        return redirect()->back()->with('success', 'La décision de distribution a été enregistrée.');
+    }
+
+    public function saveDistributionPlatform(Request $request, Project $project)
+    {
+        Gate::authorize('admin-access');
+        abort_unless($project->project_type === 'distribution_only', 404);
+
+        $validated = $request->validate([
+            'platform_name' => 'required|in:Spotify,Apple Music,Boomplay,Deezer,TikTok,YouTube Music,Audiomack',
+            'platform_url' => 'required|url:https|max:2048',
+            'status' => 'required|in:published,pending',
+        ]);
+
+        $distribution = ProjectDistribution::query()
+            ->where('project_id', $project->id)
+            ->where('platform_name', $validated['platform_name'])
+            ->first();
+
+        if ($distribution) {
+            $distribution->update([
+                'platform_url' => $validated['platform_url'],
+                'status' => $validated['status'],
+            ]);
+        } else {
+            $project->distributions()->create([
+                'platform_name' => $validated['platform_name'],
+                'platform_url' => $validated['platform_url'],
+                'status' => $validated['status'],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Le lien de distribution a été enregistré.');
+    }
+
     public function logs()
     {
         Gate::authorize('admin-access');
@@ -192,7 +299,7 @@ class AdminController extends Controller
         Log::info('Paramètres financiers mis à jour', [
             'points_per_usd' => (int) $validated['points_per_usd'],
             'cdf_per_usd' => (float) $validated['cdf_per_usd'],
-            'minimum_withdrawal_points' => (int) $validated['minimum_withdrawal_points'],
+            'minimum_withwithdrawal_points' => (int) $validated['minimum_withdrawal_points'],
             'updated_by' => Auth::id(),
         ]);
 
@@ -280,4 +387,58 @@ class AdminController extends Controller
 
         return redirect()->route('admin.users')->with('success', 'Utilisateur supprimé avec succès.');
     }
-} 
+
+    public function approveWithdrawal(Request $request, WithdrawalRequest $withdrawal, WalletService $walletService)
+    {
+        Gate::authorize('admin-access');
+
+        $validated = $request->validate([
+            'transaction_reference' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $walletService->approveWithdrawal(
+                $withdrawal,
+                (int) Auth::id(),
+                $validated['transaction_reference'] ?? null
+            );
+        } catch (\Throwable $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
+
+        Log::info('Demande de retrait approuvée', [
+            'withdrawal_id' => $withdrawal->id,
+            'processed_by' => Auth::id(),
+            'transaction_reference' => $validated['transaction_reference'] ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Le retrait a été marqué comme payé.');
+    }
+
+    public function rejectWithdrawal(Request $request, WithdrawalRequest $withdrawal, WalletService $walletService)
+    {
+        Gate::authorize('admin-access');
+
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $walletService->rejectWithdrawal(
+                $withdrawal,
+                (int) Auth::id(),
+                $validated['reason'] ?? null
+            );
+        } catch (\Throwable $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
+
+        Log::info('Demande de retrait rejetée', [
+            'withdrawal_id' => $withdrawal->id,
+            'processed_by' => Auth::id(),
+            'reason' => $validated['reason'] ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Le retrait a été rejeté et les points ont été restitués.');
+    }
+}

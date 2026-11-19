@@ -52,7 +52,7 @@
             </h1>
 
             <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Créez votre compte gratuitement, puis choisissez l'abonnement de distribution à <strong class="text-white">55 $ / 6 mois</strong> pour publier vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Vous pouvez aussi donner vie à vos projets grâce à notre studio de référence.
+                Créez votre compte gratuitement, puis choisissez l'abonnement de distribution à <strong class="text-white">12 $ / 1 mois</strong> pour publier vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Vous pouvez aussi donner vie à vos projets grâce à notre studio de référence.
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">

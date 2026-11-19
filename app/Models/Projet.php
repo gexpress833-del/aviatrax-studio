@@ -13,7 +13,7 @@ class Projet extends Model
 
     protected $fillable = [
         'titre', 'description', 'etape', 'artiste_id', 'responsable_id',
-        'date_debut', 'date_fin_prevue', 'date_fin_reelle', 'statut',
+        'date_debut', 'date_fin_prevue', 'date_fin_reelle', 'release_date', 'statut',
         'fichier_audio_path', 'fichier_video_path', 'fichier_audio_nom_original',
         'fichier_video_nom_original', 'fichier_audio_taille', 'fichier_video_taille',
         'fichier_audio_uploaded_at', 'fichier_video_uploaded_at', 'fichiers_valides_admin',
@@ -24,6 +24,7 @@ class Projet extends Model
         'date_debut' => 'date',
         'date_fin_prevue' => 'date',
         'date_fin_reelle' => 'date',
+        'release_date' => 'date',
         'fichier_audio_uploaded_at' => 'datetime',
         'fichier_video_uploaded_at' => 'datetime',
         'fichiers_valides_admin' => 'boolean',

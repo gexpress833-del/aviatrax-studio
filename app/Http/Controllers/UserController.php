@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use App\Services\WalletService;
+use App\Models\WithdrawalRequest;
 
 class UserController extends Controller
 {
@@ -135,17 +138,28 @@ class UserController extends Controller
 
         $cashAmount = $walletService->toCash((int) $request->points_amount, $request->currency);
 
-        \App\Models\WithdrawalRequest::create([
-            'user_id' => $user->id,
-            'points_amount' => (int) $request->points_amount,
-            'cash_amount' => $cashAmount,
-            'currency' => $request->currency,
-            'payment_method' => $request->payment_method,
-            'payment_account' => $request->payment_account,
-            'status' => 'en_attente',
-        ]);
+        DB::transaction(function () use ($user, $wallet, $request, $walletService, $cashAmount) {
+            $lockedWallet = $wallet->fresh();
+            $points = (int) $request->points_amount;
 
-        return redirect()->route('wallet')->with('success', 'Votre demande de retrait a bien été enregistrée et est en attente de validation.');
+            if ((int) $lockedWallet->points_balance < $points) {
+                throw new \RuntimeException('Votre solde a changé pendant la demande.');
+            }
+
+            WithdrawalRequest::create([
+                'user_id' => $user->id,
+                'points_amount' => $points,
+                'cash_amount' => $cashAmount,
+                'currency' => $request->currency,
+                'payment_method' => $request->payment_method,
+                'payment_account' => $request->payment_account,
+                'status' => 'en_attente',
+            ]);
+
+            $walletService->debit($user, $points, null, 'Gel des points pour une demande de retrait', $user->id);
+        });
+
+        return redirect()->route('wallet')->with('success', 'Votre demande de retrait a bien été enregistrée. Les points correspondants sont gelés en attente de validation.');
     }
 
     public function notificationFeed()
@@ -198,4 +212,4 @@ class UserController extends Controller
 
         return redirect()->back();
     }
-} 
+}

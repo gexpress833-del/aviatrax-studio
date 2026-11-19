@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Models\Projet;
 use App\Models\Role;
 use App\Models\Setting;
+use App\Models\Subscription;
 use App\Models\User;
 use Database\Seeders\AdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -109,6 +111,162 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertSee('href="' . $landingPageUrl . '"', false)
             ->assertSee('Retour à l’accueil');
+    }
+
+    public function test_artist_subscription_uses_neutral_payment_copy_and_starts_hosted_mobile_request(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'artiste'], ['description' => 'Artiste']);
+        $artist = User::factory()->create([
+            'telephone' => '243812345678',
+            'role_id' => $role->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+
+        config([
+            'services.flexpay.base_url' => 'https://payments.example',
+            'services.flexpay.token' => 'test-token',
+            'services.flexpay.merchant' => 'AVIATRAX',
+        ]);
+
+        Http::fake([
+            'https://payments.example/api/rest/v1/paymentService' => Http::response([
+                'code' => '0',
+                'message' => 'Request accepted',
+                'orderNumber' => 'order-123',
+            ]),
+        ]);
+
+        $this->actingAs($artist)->get(route('subscriptions.index'))
+            ->assertOk()
+            ->assertSee('12 $')
+            ->assertSee('Paiement sécurisé par Mobile Money ou carte')
+            ->assertDontSee('FlexPay');
+
+        $this->actingAs($artist)->post(route('subscriptions.checkout'), [
+            'phone' => '+243812345678',
+            'payment_type' => '1',
+        ])->assertRedirect(route('subscriptions.index'));
+
+        $subscription = Subscription::where('user_id', $artist->id)->firstOrFail();
+        $this->assertSame('12.00', $subscription->amount);
+        $this->assertSame('pending', $subscription->status);
+        $this->assertSame('order-123', $subscription->order_number);
+
+        Http::assertSent(fn ($request) => $request->url() === 'https://payments.example/api/rest/v1/paymentService'
+            && $request['merchant'] === 'AVIATRAX'
+            && $request['type'] === '1'
+            && $request['phone'] === '243812345678'
+            && $request['currency'] === 'USD');
+    }
+
+    public function test_subscription_activates_only_after_server_side_payment_verification(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'artiste'], ['description' => 'Artiste']);
+        $artist = User::factory()->create([
+            'telephone' => '243812345679',
+            'role_id' => $role->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+        $subscription = Subscription::create([
+            'user_id' => $artist->id,
+            'amount' => 55,
+            'currency' => 'USD',
+            'status' => 'pending',
+            'payment_reference' => 'sub-ref-test',
+            'order_number' => 'order-verified',
+        ]);
+
+        config([
+            'services.flexpay.base_url' => 'https://payments.example',
+            'services.flexpay.token' => 'test-token',
+            'services.flexpay.merchant' => 'AVIATRAX',
+        ]);
+        $this->travelTo(now()->startOfSecond());
+
+        Http::fake([
+            'https://payments.example/api/rest/v1/check/order-verified' => Http::response([
+                'code' => '0',
+                'transaction' => [
+                    'orderNumber' => 'order-verified',
+                    'reference' => 'sub-ref-test',
+                    'amount' => '55.0',
+                    'currency' => 'USD',
+                    'status' => '0',
+                ],
+            ]),
+        ]);
+
+        $this->post(route('payments.webhook'), [
+            'reference' => 'sub-ref-test',
+            'orderNumber' => 'order-verified',
+            'code' => '0',
+        ])->assertOk();
+
+        $subscription->refresh();
+        $this->assertSame('active', $subscription->status);
+        $this->assertTrue($subscription->starts_at->equalTo(now()));
+        $this->assertTrue($subscription->ends_at->equalTo(now()->addDays(30)));
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/check/order-verified'));
+    }
+
+    public function test_only_admin_can_set_official_release_date(): void
+    {
+        $artistRole = Role::firstOrCreate(['name' => 'artiste'], ['description' => 'Artiste']);
+        $adminRole = Role::firstOrCreate(['name' => 'administrateur'], ['description' => 'Administrateur']);
+        $artist = User::factory()->create([
+            'telephone' => '0102030490',
+            'role_id' => $artistRole->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+        $admin = User::factory()->create([
+            'telephone' => '0102030491',
+            'role_id' => $adminRole->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+        $managerRole = Role::firstOrCreate(['name' => 'responsable_studio'], ['description' => 'Studio']);
+        $manager = User::factory()->create([
+            'telephone' => '0102030492',
+            'role_id' => $managerRole->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+        $project = Projet::create([
+            'titre' => 'Release test',
+            'description' => 'Projet de test',
+            'artiste_id' => $artist->id,
+            'responsable_id' => $manager->id,
+            'date_debut' => now()->toDateString(),
+            'statut' => 'actif',
+        ]);
+
+        $this->actingAs($artist)->put(route('admin.projects.release-date', $project), [
+            'release_date' => '2027-01-15',
+        ])->assertForbidden();
+
+        $this->actingAs($admin)->put(route('admin.projects.release-date', $project), [
+            'release_date' => '2027-01-15',
+        ])->assertRedirect();
+
+        $this->assertSame('2027-01-15', $project->fresh()->release_date->toDateString());
+    }
+
+    public function test_artist_without_active_subscription_cannot_submit_distribution_project(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'artiste'], ['description' => 'Artiste']);
+        $artist = User::factory()->create([
+            'telephone' => '0102030493',
+            'role_id' => $role->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+
+        $this->actingAs($artist)->post(route('distribution.projects.store'), [])
+            ->assertRedirect(route('subscriptions.index'))
+            ->assertSessionHasErrors('subscription');
     }
 
     public function test_pending_artist_is_redirected_to_waiting_page_after_login(): void
