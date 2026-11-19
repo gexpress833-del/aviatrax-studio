@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/wallet', [App\Http\Controllers\UserController::class, 'wallet'])->name('wallet');
         Route::post('/wallet/withdraw', [App\Http\Controllers\UserController::class, 'storeWithdrawalRequest'])->name('wallet.withdraw');
     });
+    Route::get('/notifications', [App\Http\Controllers\UserController::class, 'notifications'])->name('notifications.index');
     Route::post('/notifications/read-all', [App\Http\Controllers\UserController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
     Route::get('/notifications/feed', [App\Http\Controllers\UserController::class, 'notificationFeed'])->name('notifications.feed');
     Route::post('/notifications/{notification}/read', [App\Http\Controllers\UserController::class, 'markNotificationAsRead'])->name('notifications.read');
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/abonnement', [SubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::post('/abonnement/checkout', [SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
         Route::post('/abonnement/{subscription}/verify', [SubscriptionController::class, 'verify'])->name('subscriptions.verify');
+        Route::get('/abonnement/{subscription}/success', [SubscriptionController::class, 'success'])->name('subscriptions.success');
         Route::post('/abonnement/{subscription}/annuler', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
         Route::post('/distribution/projets', [DistributionProjectController::class, 'store'])->name('distribution.projects.store');
     });

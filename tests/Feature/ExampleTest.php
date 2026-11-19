@@ -269,59 +269,6 @@ class ExampleTest extends TestCase
             ->assertSessionHasErrors('subscription');
     }
 
-    public function test_pending_artist_is_redirected_to_waiting_page_after_login(): void
-    {
-        $role = Role::firstOrCreate(
-            ['name' => 'artiste'],
-            ['description' => 'Artiste']
-        );
-
-        $user = User::factory()->create([
-            'name' => 'Artiste en attente',
-            'email' => 'pending-artist@example.com',
-            'telephone' => '0102030405',
-            'password' => Hash::make('password123'),
-            'role_id' => $role->id,
-            'statut' => 'en_attente_validation',
-        ]);
-
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password123',
-        ]);
-
-        $response->assertRedirect('/compte-en-attente');
-
-        $this->assertFalse(auth()->check());
-
-        $this->get('/compte-en-attente')
-            ->assertOk()
-            ->assertSee('Aviatrax Studio')
-            ->assertSee('href="' . url('/') . '"', false)
-            ->assertSee('Retour à la page d’accueil');
-    }
-
-    public function test_pending_artist_is_redirected_from_dashboard(): void
-    {
-        $role = Role::firstOrCreate(
-            ['name' => 'artiste'],
-            ['description' => 'Artiste']
-        );
-
-        $user = User::factory()->create([
-            'name' => 'Artiste bloqué',
-            'email' => 'blocked-artist@example.com',
-            'telephone' => '0102030406',
-            'password' => Hash::make('password123'),
-            'role_id' => $role->id,
-            'statut' => 'en_attente_validation',
-        ]);
-
-        $response = $this->actingAs($user)->get('/dashboard');
-
-        $response->assertRedirect('/compte-en-attente');
-    }
-
     public function test_public_registration_creates_artist_account_by_default(): void
     {
         $role = Role::firstOrCreate(
@@ -337,13 +284,15 @@ class ExampleTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/dashboard');
 
         $user = User::where('email', 'nouveau-visiteur@example.com')->firstOrFail();
 
         $this->assertEquals($role->id, $user->role_id);
-        $this->assertEquals('en_attente_validation', $user->statut);
-        $this->assertFalse($user->canManageArtistes());
+        $this->assertEquals('valide', $user->status);
+        $this->assertEquals('valide', $user->statut);
+        $this->assertTrue(auth()->check());
+        $this->assertSame($user->id, auth()->id());
     }
 
     public function test_responsable_studio_user_can_access_dashboard(): void
@@ -799,5 +748,33 @@ class ExampleTest extends TestCase
         $this->assertTrue(Projet::canAdvanceTo('mastering', 'distribution_en_cours'));
         $this->assertFalse(Projet::canAdvanceTo('mixage', 'enregistrement'));
         $this->assertFalse(Projet::canAdvanceTo('enregistrement', 'distribution_terminee'));
+    }
+
+    public function test_active_artist_can_log_in_immediately(): void
+    {
+        $role = Role::firstOrCreate(
+            ['name' => 'artiste'],
+            ['description' => 'Artiste']
+        );
+
+        $user = User::factory()->create([
+            'name' => 'Artiste actif',
+            'email' => 'active-artist@example.com',
+            'telephone' => '0102030405',
+            'password' => Hash::make('password123'),
+            'role_id' => $role->id,
+            'status' => 'valide',
+            'statut' => 'valide',
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/dashboard');
+        $this->assertTrue(auth()->check());
+
+        $this->actingAs($user)->get('/dashboard')->assertOk();
     }
 }

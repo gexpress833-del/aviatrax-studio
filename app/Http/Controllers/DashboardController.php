@@ -13,10 +13,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isPendingValidation()) {
-            return redirect()->route('account.pending');
-        }
-
         $role = $user->role->name;
 
         return match ($role) {

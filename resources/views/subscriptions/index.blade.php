@@ -61,20 +61,35 @@
                             @error('phone')<p class="mt-1 text-sm text-red-300">{{ $message }}</p>@enderror
                         </div>
 
-                        <div id="card-fields" class="hidden space-y-3 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
-                            <div>
-                                <label for="card_number" class="mb-1.5 block text-sm font-medium text-slate-200">Numéro de carte Visa</label>
-                                <input id="card_number" name="card_number" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4242 4242 4242 4242" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none">
+                        <div id="card-fields" class="hidden space-y-4 rounded-xl border border-slate-600 bg-slate-950/70 p-4 sm:p-5">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-white">Ajouter une carte de crédit ou de débit</p>
+                                    <p class="mt-1 text-xs text-slate-400">Tous les champs sont obligatoires</p>
+                                </div>
+                                <span class="rounded-md border border-slate-600 px-2 py-1 text-xs font-bold text-slate-200">VISA</span>
                             </div>
+
+                            <div>
+                                <label for="card_number" class="mb-1.5 block text-sm font-medium text-slate-200">Numéro de carte</label>
+                                <input id="card_number" name="card_number" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4242 4242 4242 4242" value="{{ old('card_number') }}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-3 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20" aria-describedby="card-number-status">
+                                <p id="card-number-status" class="mt-1 hidden text-xs"></p>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label for="card_expiry" class="mb-1.5 block text-sm font-medium text-slate-200">Expiration (MM/AA)</label>
-                                    <input id="card_expiry" name="card_expiry" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/30" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none">
+                                    <label for="card_expiry" class="mb-1.5 block text-sm font-medium text-slate-200">Date d’expiration</label>
+                                    <input id="card_expiry" name="card_expiry" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/AA" value="{{ old('card_expiry') }}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-3 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
                                 </div>
                                 <div>
                                     <label for="card_cvv" class="mb-1.5 block text-sm font-medium text-slate-200">CVV</label>
-                                    <input id="card_cvv" name="card_cvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none">
+                                    <input id="card_cvv" name="card_cvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-3 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
                                 </div>
+                            </div>
+
+                            <div>
+                                <label for="card_name" class="mb-1.5 block text-sm font-medium text-slate-200">Nom et prénom du titulaire</label>
+                                <input id="card_name" name="card_name" type="text" autocomplete="cc-name" maxlength="100" placeholder="Nom complet" value="{{ old('card_name') }}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-3 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
                             </div>
                         </div>
                         <fieldset>
@@ -189,6 +204,62 @@
         const phoneField = document.getElementById('phone-field');
         const phoneInput = document.getElementById('phone');
         const cardFields = document.getElementById('card-fields');
+        const cardNumber = document.getElementById('card_number');
+        const cardExpiry = document.getElementById('card_expiry');
+        const cardCvv = document.getElementById('card_cvv');
+        const cardName = document.getElementById('card_name');
+        const cardNumberStatus = document.getElementById('card-number-status');
+
+        function luhnValid(value) {
+            let sum = 0;
+            let doubleDigit = false;
+            for (let i = value.length - 1; i >= 0; i -= 1) {
+                let digit = Number(value[i]);
+                if (doubleDigit) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                sum += digit;
+                doubleDigit = !doubleDigit;
+            }
+            return sum % 10 === 0;
+        }
+
+        function visaValid(value) {
+            const digits = value.replace(/\D/g, '');
+            return /^4[0-9]{15}$/.test(digits) && luhnValid(digits);
+        }
+
+        function updateCardNumberStatus() {
+            if (!cardNumberStatus) return;
+            const digits = cardNumber.value.replace(/\D/g, '');
+            if (!digits) {
+                cardNumberStatus.className = 'mt-1 hidden text-xs';
+                cardNumberStatus.textContent = '';
+                return;
+            }
+
+            cardNumberStatus.className = 'mt-1 text-xs ' + (visaValid(digits) ? 'text-emerald-300' : 'text-red-300');
+            cardNumberStatus.textContent = visaValid(digits)
+                ? 'Carte Visa valide.'
+                : 'Saisissez une carte Visa valide.';
+        }
+
+        cardNumber?.addEventListener('input', function () {
+            const digits = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+            cardNumber.value = digits.replace(/(.{4})(?=.)/g, '$1 ');
+            updateCardNumberStatus();
+        });
+
+        cardExpiry?.addEventListener('input', function () {
+            let value = cardExpiry.value.replace(/\D/g, '').slice(0, 4);
+            if (value.length >= 3) value = value.slice(0, 2) + '/' + value.slice(2);
+            cardExpiry.value = value;
+        });
+
+        cardCvv?.addEventListener('input', function () {
+            cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 4);
+        });
 
         function syncPaymentMethod() {
             const mobileMoney = document.querySelector('input[name="payment_type"]:checked')?.value === '1';
@@ -198,9 +269,34 @@
 
             const cardPayment = document.querySelector('input[name="payment_type"]:checked')?.value === '2';
             cardFields.classList.toggle('hidden', !cardPayment);
+            [cardNumber, cardExpiry, cardCvv, cardName].forEach((field) => {
+                field.disabled = !cardPayment;
+                field.required = cardPayment;
+            });
         }
 
         paymentTypes.forEach((input) => input.addEventListener('change', syncPaymentMethod));
+
+        document.querySelector('form[action="{{ route('subscriptions.checkout') }}"]')?.addEventListener('submit', function (event) {
+            if (document.querySelector('input[name="payment_type"]:checked')?.value !== '2') return;
+
+            const digits = cardNumber.value.replace(/\D/g, '');
+            const match = cardExpiry.value.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/);
+            const now = new Date();
+            const expiryValid = match && (2000 + Number(match[2]) > now.getFullYear()
+                || (2000 + Number(match[2]) === now.getFullYear() && Number(match[1]) >= now.getMonth() + 1));
+
+            if (!visaValid(digits) || !expiryValid || !/^[0-9]{3,4}$/.test(cardCvv.value) || cardName.value.trim().length < 2) {
+                event.preventDefault();
+                cardFields.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (cardName.value.trim().length < 2) {
+                    cardName.focus();
+                } else {
+                    cardNumber.focus();
+                }
+            }
+        });
+
         syncPaymentMethod();
     })();
 </script>

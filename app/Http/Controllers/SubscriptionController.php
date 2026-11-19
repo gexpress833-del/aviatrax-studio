@@ -42,13 +42,15 @@ class SubscriptionController extends Controller
         $validated = $request->validate([
             'phone' => ['nullable', 'string', 'regex:/^\+?[0-9]{9,15}$/'],
             'payment_type' => 'required|in:1,2',
+            'card_name' => ['nullable', 'string', 'max:100'],
             'card_number' => ['nullable', 'string', 'regex:/^[0-9][0-9 ]{12,18}$/'],
             'card_expiry' => ['nullable', 'string', 'regex:/^(0[1-9]|1[0-2])\/([0-9]{2})$/'],
             'card_cvv' => ['nullable', 'string', 'regex:/^[0-9]{3,4}$/'],
         ], [
             'phone.regex' => 'Saisissez un numéro de téléphone valide avec indicatif pays.',
             'payment_type.in' => 'Choisissez Mobile Money ou carte bancaire.',
-            'card_number.regex' => 'Saisissez un numéro de carte Visa valide.',
+            'card_name.max' => 'Le nom du titulaire ne peut pas dépasser 100 caractères.',
+            'card_number.regex' => 'Saisissez un numéro de carte valide.',
             'card_expiry.regex' => 'Saisissez une date au format MM/AA.',
             'card_cvv.regex' => 'Saisissez un CVV valide.',
         ]);
@@ -66,6 +68,49 @@ class SubscriptionController extends Controller
                 return redirect()->route('subscriptions.index')->withErrors([
                     'card_number' => 'Les informations de carte sont obligatoires pour payer par carte.',
                 ]);
+            }
+
+            $cardName = trim((string) ($validated['card_name'] ?? ''));
+            $cardNumber = preg_replace('/\s+/', '', (string) ($validated['card_number'] ?? ''));
+
+            if ($cardName === '') {
+                return redirect()->route('subscriptions.index')->withErrors(['card_name' => 'Le nom du titulaire est obligatoire.']);
+            }
+
+            if (! str_starts_with($cardNumber, '4') || strlen($cardNumber) !== 16) {
+                return redirect()->route('subscriptions.index')->withErrors(['card_number' => 'Saisissez un numéro de carte Visa valide.']);
+            }
+
+            $sum = 0;
+            $doubleDigit = false;
+            for ($i = strlen($cardNumber) - 1; $i >= 0; $i--) {
+                $digit = (int) $cardNumber[$i];
+                if ($doubleDigit) {
+                    $digit *= 2;
+                    if ($digit > 9) {
+                        $digit -= 9;
+                    }
+                }
+                $sum += $digit;
+                $doubleDigit = ! $doubleDigit;
+            }
+
+            if ($sum % 10 !== 0) {
+                return redirect()->route('subscriptions.index')->withErrors(['card_number' => 'Le numéro de carte ne passe pas la validation Visa/Luhn.']);
+            }
+
+            if (preg_match('/^(0[1-9]|1[0-2])\/([0-9]{2})$/', (string) ($validated['card_expiry'] ?? ''), $matches) !== 1) {
+                return redirect()->route('subscriptions.index')->withErrors(['card_expiry' => 'Saisissez une date d’expiration valide au format MM/AA.']);
+            }
+
+            $expiryYear = 2000 + (int) $matches[2];
+            $expiryMonth = (int) $matches[1];
+            if ($expiryYear < now()->year || ($expiryYear === now()->year && $expiryMonth < now()->month)) {
+                return redirect()->route('subscriptions.index')->withErrors(['card_expiry' => 'La carte est expirée.']);
+            }
+
+            if (blank($validated['card_cvv'] ?? null)) {
+                return redirect()->route('subscriptions.index')->withErrors(['card_cvv' => 'Le CVV est obligatoire.']);
             }
         }
 
@@ -139,14 +184,21 @@ class SubscriptionController extends Controller
             if (! $result['paid']) {
                 return redirect()->route('subscriptions.index')->with(
                     'error',
-                    'FlexPay n’a pas encore confirmé un paiement réussi. Attendez le webhook officiel.'
+                    'FlexPay n’a pas encore confirmé un paiement réussi. Attendez quelques instants puis réessayez.'
                 );
             }
 
-            return redirect()->route('subscriptions.index')->with(
-                'info',
-                'Paiement confirmé par FlexPay. Activation définitive attendue par webhook.'
-            );
+            $subscription = $this->applyVerifiedResult($subscription, $result);
+
+            if ($subscription->status !== 'active') {
+                return redirect()->route('subscriptions.index')->with(
+                    'error',
+                    'Le paiement a été reçu, mais l’abonnement n’a pas pu être activé.'
+                );
+            }
+
+            return redirect()->route('subscriptions.success', $subscription)
+                ->with('success', 'Votre abonnement de distribution est maintenant actif.');
         } catch (Throwable $exception) {
             Log::warning('La vérification du paiement est temporairement indisponible.', [
                 'subscription_id' => $subscription->id,
@@ -157,13 +209,6 @@ class SubscriptionController extends Controller
                 'payment' => 'Le statut du paiement n’est pas encore disponible. Réessayez dans quelques instants.'
             ]);
         }
-
-        return redirect()->route('subscriptions.index')->with(
-            $subscription->status === 'active' ? 'success' : 'error',
-            $subscription->status === 'active'
-                ? 'Votre abonnement est maintenant actif pour 1 mois.'
-                : 'Le paiement n’est pas encore confirmé. Vous pourrez réessayer après l’autorisation.'
-        );
     }
 
     public function webhook(Request $request, FlexPayPaymentService $paymentService): JsonResponse
@@ -217,6 +262,19 @@ class SubscriptionController extends Controller
             'success',
             'Paiement annulé. Vous pouvez soumettre une nouvelle demande.'
         );
+    }
+
+    public function success(Request $request, Subscription $subscription)
+    {
+        abort_unless($subscription->user_id === $request->user()->id, 404);
+        abort_unless($subscription->status === 'active', 404);
+
+        if ($subscription->ends_at && $subscription->ends_at->isPast()) {
+            $subscription->update(['status' => 'expired']);
+            abort(404);
+        }
+
+        return view('subscriptions.success', compact('subscription'));
     }
 
     private function applyVerifiedResult(Subscription $subscription, array $result): Subscription

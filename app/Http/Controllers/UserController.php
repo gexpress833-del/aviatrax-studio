@@ -212,4 +212,23 @@ class UserController extends Controller
 
         return redirect()->back();
     }
+
+    public function notifications(Request $request)
+    {
+        $user = Auth::user();
+        $filter = $request->string('filter')->toString();
+
+        $notifications = $user->notifications()
+            ->latest()
+            ->when($filter === 'unread', fn ($query) => $query->whereNull('read_at'))
+            ->when($filter === 'read', fn ($query) => $query->whereNotNull('read_at'))
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('notifications.index', [
+            'notifications' => $notifications,
+            'filter' => in_array($filter, ['read', 'unread'], true) ? $filter : 'all',
+            'unreadCount' => $user->unreadNotifications()->count(),
+        ]);
+    }
 }

@@ -69,8 +69,8 @@ class AuthController extends Controller
             'telephone' => $request->telephone,
             'password' => Hash::make($request->password),
             'role_id' => $role->id,
-            'status' => 'en_attente_validation',
-            'statut' => 'en_attente_validation',
+            'status' => 'valide',
+            'statut' => 'valide',
         ]);
 
         Log::info('Nouvel utilisateur inscrit', [
@@ -80,7 +80,10 @@ class AuthController extends Controller
             'statut' => $user->statut,
         ]);
 
-        return redirect()->route('login')->with('success', 'Inscription réussie ! Votre compte artiste est en attente de validation par l’administration.');
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')->with('success', 'Inscription réussie ! Votre compte artiste est actif.');
     }
 
     public function login(Request $request)
@@ -98,15 +101,6 @@ class AuthController extends Controller
         
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-
-            if ($user->isPendingValidation()) {
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                session(['pending_user_id' => $user->id]);
-                Auth::logout();
-
-                return redirect()->route('account.pending');
-            }
 
             if (!$user->isValide()) {
                 Auth::logout();
@@ -135,4 +129,4 @@ class AuthController extends Controller
 
         return redirect()->route('login');
     }
-} 
+}

@@ -43,9 +43,39 @@
                 padding-right: 0.75rem !important;
             }
         }
+
+        #page-progress {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 9999;
+            height: 3px;
+            pointer-events: none;
+            background: linear-gradient(90deg, #38bdf8 0%, #818cf8 55%, #fb923c 100%);
+            box-shadow: 0 0 14px rgba(129, 140, 248, 0.72);
+            transform: translateX(-101%) scaleX(1);
+            transform-origin: left;
+            opacity: 0;
+            transition: transform 260ms ease-out, opacity 180ms ease-out;
+        }
+
+        #page-progress.is-active {
+            opacity: 1;
+            animation: page-progress-travel 1.1s ease-in-out infinite alternate;
+        }
+
+        #page-progress.is-complete {
+            opacity: 1;
+            transform: translateX(0) scaleX(1);
+        }
+
+        @keyframes page-progress-travel {
+            0% { transform: translateX(-85%) scaleX(.38); }
+            55% { transform: translateX(-25%) scaleX(.72); }
+            100% { transform: translateX(12%) scaleX(.48); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased">
+    <div id="page-progress" role="progressbar" aria-label="Chargement de la page" aria-valuemin="0" aria-valuemax="100"></div>
     @auth
     <nav class="bg-slate-950/95 border-b border-orange-500/70 shadow-lg shadow-slate-950/40 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4">
@@ -95,10 +125,10 @@
 
                         <div id="notification-panel" class="absolute right-0 top-12 hidden w-[min(90vw,360px)] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-slate-950/60 z-50" role="region" aria-label="Notifications récentes">
                             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-                                <span class="text-sm font-semibold text-slate-100">Notifications</span>
+                                <a href="{{ route('notifications.index') }}" class="text-sm font-semibold text-slate-100 hover:text-indigo-300">Notifications</a>
                                 <form method="POST" action="{{ route('notifications.read-all') }}" class="{{ $unreadNotificationsCount > 0 ? '' : 'hidden' }}">
                                     @csrf
-                                    <button type="submit" class="text-[11px] text-blue-300 hover:text-blue-200">Tout marquer comme lu</button>
+                                    <button type="submit" class="text-[11px] font-medium text-blue-300 hover:text-blue-200">Tout marquer comme lu</button>
                                 </form>
                             </div>
 
@@ -396,6 +426,50 @@
                 }
             });
         });
+
+        const pageProgress = document.getElementById('page-progress');
+        let progressRequests = 0;
+
+        function startPageProgress() {
+            if (!pageProgress) return;
+            progressRequests += 1;
+            pageProgress.classList.remove('is-complete');
+            pageProgress.classList.add('is-active');
+            pageProgress.setAttribute('aria-valuenow', '45');
+        }
+
+        function finishPageProgress() {
+            if (!pageProgress) return;
+            progressRequests = Math.max(0, progressRequests - 1);
+            if (progressRequests > 0) return;
+            pageProgress.classList.remove('is-active');
+            pageProgress.classList.add('is-complete');
+            pageProgress.setAttribute('aria-valuenow', '100');
+            window.setTimeout(function () {
+                pageProgress.classList.remove('is-complete');
+                pageProgress.removeAttribute('aria-valuenow');
+            }, 260);
+        }
+
+        window.addEventListener('load', finishPageProgress);
+
+        document.addEventListener('click', function (event) {
+            const link = event.target.closest('a[href]');
+            if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin || link.hasAttribute('download') || link.target === '_blank') return;
+            startPageProgress();
+        });
+
+        document.addEventListener('submit', function (event) {
+            if (!event.defaultPrevented) startPageProgress();
+        }, true);
+
+        const nativeFetch = window.fetch.bind(window);
+        window.fetch = function (...args) {
+            startPageProgress();
+            return nativeFetch(...args).finally(finishPageProgress);
+        };
     </script>
 </body>
 </html>
