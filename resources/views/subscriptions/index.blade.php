@@ -3,31 +3,45 @@
 @section('title', 'Abonnement de distribution - Aviatrax Studio')
 
 @section('content')
-<div class="mx-auto max-w-5xl space-y-6">
-    <header class="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8">
-        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Aviatrax Studio</p>
-        <h1 class="mt-2 text-3xl font-bold text-white">Abonnement de distribution</h1>
-        <p class="mt-3 max-w-3xl leading-7 text-slate-300">La création de compte est gratuite. L’abonnement de 12 $ couvre uniquement l’accès à la plateforme et la distribution mondiale pendant 1 mois. La production, l’enregistrement, le mixage et le mastering en studio sont facturés séparément par Maisha Sound Studio.</p>
+<div class="mx-auto max-w-6xl space-y-6">
+    <header class="relative overflow-hidden rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-indigo-950/70 via-slate-950 to-slate-950 px-5 py-8 sm:px-8 sm:py-10">
+        <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl"></div>
+        <div class="relative max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] text-indigo-300">Aviatrax distribution</p>
+            <h1 class="mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">Lancez votre musique dans le monde</h1>
+            <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">Activez votre accès mensuel à la plateforme, suivez votre distribution et accompagnez chaque sortie jusqu’à sa mise en ligne.</p>
+        </div>
     </header>
 
     @if($subscription)
-        <section class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 sm:p-6">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm font-semibold text-emerald-300">Abonnement actif</p>
-                    <p class="mt-1 text-slate-200">Valide jusqu’au {{ $subscription->ends_at->format('d/m/Y') }}</p>
+        <section class="relative overflow-hidden rounded-3xl border border-emerald-400/25 bg-gradient-to-br from-emerald-950/40 via-slate-950 to-slate-950 p-5 sm:p-8">
+            <div class="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl"></div>
+            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-start gap-4">
+                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-400/10 text-emerald-300">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></svg>
+                    </span>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Abonnement actif</p>
+                        <h2 class="mt-1 text-2xl font-bold text-white">Votre accès est disponible</h2>
+                        <p class="mt-2 text-sm text-slate-300">Valide jusqu’au <strong class="text-white">{{ $subscription->ends_at->format('d/m/Y') }}</strong></p>
+                    </div>
                 </div>
-                <span class="rounded-lg border border-emerald-500/30 bg-slate-950/40 px-4 py-2 text-lg font-bold text-white">12 $ / 1 mois</span>
+                <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300">Accéder à mes sorties</a>
             </div>
         </section>
     @else
-        <section class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-            <div class="rounded-xl border border-slate-700 bg-slate-900 p-5 sm:p-6">
-                <h2 class="text-xl font-semibold text-white">Activer votre accès distribution</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-400">Après confirmation du paiement sécurisé, votre abonnement sera actif pendant 30 jours. Choisissez le moyen de paiement et indiquez le numéro associé au compte à débiter.</p>
+        <section class="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
+            <div class="overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-900/90 shadow-2xl shadow-slate-950/25">
+                <div class="border-b border-slate-800 px-5 py-5 sm:px-7">
+                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">Activation mensuelle</p>
+                    <h2 class="mt-2 text-2xl font-bold text-white">Finaliser mon abonnement</h2>
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Choisissez votre moyen de paiement sécurisé. Votre accès sera activé dès confirmation du paiement.</p>
+                </div>
 
+                <div class="p-5 sm:p-7">
                 @if($errors->any())
-                    <div class="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
+                    <div class="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
                         <ul class="list-inside list-disc space-y-1">
                             @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                         </ul>
@@ -36,25 +50,52 @@
 
                 @if($pendingSubscription = $subscriptions->firstWhere('status', 'pending'))
                     @if($pendingSubscription->order_number)
-                        <div class="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-                            <p class="text-sm text-amber-100">Une demande de paiement est en attente. Confirmez-la sur votre téléphone, puis vérifiez son statut.</p>
-                            <div class="mt-3 flex flex-wrap gap-2">
+                        <div class="rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.5)]"></span>
+                                <div>
+                                    <h3 class="font-semibold text-amber-100">Paiement en cours de confirmation</h3>
+                                    <p class="mt-2 text-sm leading-6 text-amber-100/70">Autorisez la transaction sur votre téléphone ou votre espace bancaire, puis vérifiez son statut.</p>
+                                </div>
+                            </div>
+                            <div class="mt-5 flex flex-col gap-3 sm:flex-row">
                                 <form action="{{ route('subscriptions.verify', $pendingSubscription) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-300">Vérifier le paiement</button>
+                                    <button type="submit" class="w-full rounded-xl bg-amber-300 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-amber-200 sm:w-auto">Vérifier le paiement</button>
                                 </form>
                                 <form action="{{ route('subscriptions.cancel', $pendingSubscription) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800">Annuler / recommencer</button>
+                                    <button type="submit" class="w-full rounded-xl border border-slate-600 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 sm:w-auto">Annuler et recommencer</button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <p class="mt-4 text-sm text-amber-200">La demande précédente n’a pas reçu de numéro de transaction. Vous pouvez soumettre une nouvelle demande.</p>
+                        <p class="rounded-xl border border-amber-400/25 bg-amber-400/[0.07] p-4 text-sm text-amber-100">La demande précédente n’a pas reçu de référence. Vous pouvez soumettre une nouvelle demande.</p>
                     @endif
                 @else
-                    <form action="{{ route('subscriptions.checkout') }}" method="POST" class="mt-5 space-y-4">
+                    <form action="{{ route('subscriptions.checkout') }}" method="POST" class="space-y-6">
                         @csrf
+
+                        <fieldset>
+                            <legend class="mb-3 text-sm font-semibold text-white">Choisissez votre moyen de paiement</legend>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/70 p-4 transition has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-500/10 has-[:checked]:shadow-[0_0_24px_rgba(99,102,241,.09)]">
+                                    <input type="radio" name="payment_type" value="1" @checked(old('payment_type', '1') === '1') required class="accent-indigo-400">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-emerald-300">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+                                    </span>
+                                    <span><strong class="block text-sm text-slate-100">Mobile Money</strong><small class="mt-1 block text-xs text-slate-500">Paiement depuis votre téléphone</small></span>
+                                </label>
+                                <label class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/70 p-4 transition has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-500/10 has-[:checked]:shadow-[0_0_24px_rgba(99,102,241,.09)]">
+                                    <input type="radio" name="payment_type" value="2" @checked(old('payment_type') === '2') required class="accent-indigo-400">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-indigo-300">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                                    </span>
+                                    <span><strong class="block text-sm text-slate-100">Carte bancaire</strong><small class="mt-1 block text-xs text-slate-500">Visa crédit ou débit</small></span>
+                                </label>
+                            </div>
+                        </fieldset>
+
                         <div id="phone-field">
                             <label for="phone" class="mb-1.5 block text-sm font-medium text-slate-200">Numéro de paiement avec indicatif pays</label>
                             <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ old('phone', auth()->user()->telephone) }}" placeholder="+243…" required class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
@@ -92,19 +133,6 @@
                                 <input id="card_name" name="card_name" type="text" autocomplete="cc-name" maxlength="100" placeholder="Nom complet" value="{{ old('card_name') }}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-3 text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20">
                             </div>
                         </div>
-                        <fieldset>
-                            <legend class="mb-2 block text-sm font-medium text-slate-200">Moyen de paiement</legend>
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-200 has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-500/10">
-                                    <input type="radio" name="payment_type" value="1" @checked(old('payment_type', '1') === '1') required class="accent-indigo-400">
-                                    Mobile Money
-                                </label>
-                                <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-200 has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-500/10">
-                                    <input type="radio" name="payment_type" value="2" @checked(old('payment_type') === '2') required class="accent-indigo-400">
-                                    Carte bancaire
-                                </label>
-                            </div>
-                        </fieldset>
                         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-slate-700 pt-4">
                             <span class="text-3xl font-bold text-white">12 $</span>
                             <span class="text-sm text-slate-400">pour 1 mois de distribution</span>
@@ -115,15 +143,23 @@
                 @endif
             </div>
 
-            <aside class="rounded-xl border border-slate-700 bg-slate-900/70 p-5 sm:p-6">
-                <h2 class="text-lg font-semibold text-white">Ce que couvre l’abonnement</h2>
-                <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-300">
-                    <li class="flex gap-2"><span class="text-emerald-300">✓</span><span>Accès à la plateforme pendant 30 jours</span></li>
-                    <li class="flex gap-2"><span class="text-emerald-300">✓</span><span>Soumission de masters et pochettes pour distribution mondiale</span></li>
-                    <li class="flex gap-2"><span class="text-emerald-300">✓</span><span>Suivi de validation, date de sortie et liens de distribution</span></li>
-                    <li class="flex gap-2"><span class="text-emerald-300">✓</span><span>Suivi du portefeuille de points et des revenus</span></li>
-                </ul>
-                <p class="mt-5 rounded-lg border border-slate-700 bg-slate-950/70 p-3 text-xs leading-5 text-slate-400">L’enregistrement, le mixage et le mastering sont des services distincts, facturés par Maisha Sound Studio selon le projet.</p>
+            <aside class="space-y-4">
+                <div class="rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-indigo-950/50 via-slate-900 to-slate-950 p-5 sm:p-6">
+                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">Pass distribution</p>
+                    <div class="mt-4 flex items-end gap-2"><span class="text-5xl font-black tracking-tight text-white">12 $</span><span class="pb-1 text-sm text-slate-400">/ 30 jours</span></div>
+                    <p class="mt-3 text-sm leading-6 text-slate-400">Un accès mensuel conçu pour préparer, soumettre et suivre vos sorties.</p>
+                    <div class="my-5 h-px bg-slate-800"></div>
+                    <ul class="space-y-4 text-sm text-slate-200">
+                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Accès complet pendant 30 jours</span></li>
+                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Soumission professionnelle des sorties</span></li>
+                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Suivi des validations et des plateformes</span></li>
+                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Historique et suivi de votre portefeuille</span></li>
+                    </ul>
+                </div>
+                <div class="rounded-2xl border border-slate-800 bg-slate-950/55 p-4">
+                    <p class="text-sm font-semibold text-white">Paiement sécurisé</p>
+                    <p class="mt-2 text-xs leading-5 text-slate-500">La confirmation provient du système de paiement sécurisé. L’enregistrement, le mixage et le mastering restent des prestations studio distinctes.</p>
+                </div>
             </aside>
         </section>
     @endif
