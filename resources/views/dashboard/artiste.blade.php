@@ -66,6 +66,13 @@
                 <div class="space-y-4">
                     @foreach($projets as $projet)
                         <div class="rounded-lg border border-slate-700 bg-slate-800/70 p-4 transition-shadow hover:shadow-md hover:shadow-black/20">
+                            @if(!$projet->cover_art_url)
+                                <div class="mb-4 rounded-xl border border-amber-400/30 bg-amber-500/10 p-4">
+                                    <p class="text-sm font-semibold text-amber-200">Pochette obligatoire : 1600 × 1600 px</p>
+                                    <p class="mt-1 text-xs leading-5 text-amber-100/80">Le visuel doit contenir uniquement le titre du morceau ou de l’album et le nom de l’artiste. Aucun visage, aucune photo, aucun autre élément promotionnel.</p>
+                                    <a href="{{ route('projets.show', $projet) }}#pochette" class="mt-3 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-amber-300">Ajouter ma pochette</a>
+                                </div>
+                            @endif
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div class="min-w-0 flex-1">
                                     <h3 class="text-lg font-medium text-slate-100">{{ $projet->titre }}</h3>
@@ -199,4 +206,4 @@
         </div>
     @endif
 </div>
-@endsection 
+@endsection

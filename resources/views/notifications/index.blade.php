@@ -11,7 +11,7 @@
     ];
 @endphp
 
-<div class="mx-auto max-w-5xl space-y-5 sm:space-y-6">
+<div class="mx-auto max-w-5xl space-y-5 pb-8 sm:space-y-6">
     <header class="relative overflow-hidden rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 p-5 sm:p-7">
         <div class="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl"></div>
         <div class="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
+use App\Services\CloudinaryMediaService;
 
 class ProjetController extends Controller
 {
@@ -245,10 +246,13 @@ class ProjetController extends Controller
 
     public function downloadAudio(Projet $projet)
     {
-        // Seuls les admins et responsables peuvent télécharger
-        if (!Auth::user()->isAdmin() && !Auth::user()->isResponsableStudio()) {
-            abort(403);
-        }
+        $user = Auth::user();
+        $canDownload = $user && (
+            $user->isAdmin()
+            || $user->isResponsableStudio()
+            || ($user->isArtiste() && $projet->artiste_id === $user->id && $projet->fichiers_valides_admin)
+        );
+        abort_unless($canDownload, 403);
 
         if (!$projet->hasFichierAudio()) {
             abort(404, 'Fichier audio non trouvé');
@@ -263,10 +267,13 @@ class ProjetController extends Controller
 
     public function downloadVideo(Projet $projet)
     {
-        // Seuls les admins et responsables peuvent télécharger
-        if (!Auth::user()->isAdmin() && !Auth::user()->isResponsableStudio()) {
-            abort(403);
-        }
+        $user = Auth::user();
+        $canDownload = $user && (
+            $user->isAdmin()
+            || $user->isResponsableStudio()
+            || ($user->isArtiste() && $projet->artiste_id === $user->id && $projet->fichiers_valides_admin)
+        );
+        abort_unless($canDownload, 403);
 
         if (!$projet->hasFichierVideo()) {
             abort(404, 'Fichier vidéo non trouvé');
@@ -328,5 +335,106 @@ class ProjetController extends Controller
         ]);
 
         return redirect()->route('projets.index')->with('success', 'Projet supprimé avec succès.');
+    }
+
+    public function uploadCover(Request $request, Projet $projet, CloudinaryMediaService $mediaService)
+    {
+        $user = Auth::user();
+        abort_unless($user && ($user->isAdmin() || ($user->isArtiste() && $projet->artiste_id === $user->id)), 403);
+
+        $validated = $request->validate([
+            'cover_art' => 'required|image|mimes:jpg,jpeg,png,webp|dimensions:width=1600,height=1600|max:20480',
+        ], [
+            'cover_art.dimensions' => 'La pochette doit avoir exactement 1600 × 1600 pixels.',
+            'cover_art.mimes' => 'La pochette doit être au format JPG, PNG ou WebP.',
+            'cover_art.max' => 'La pochette ne doit pas dépasser 20 MB.',
+        ]);
+
+        if (! User::isCloudinaryConfigured()) {
+            return redirect()->back()->with('error', 'Le stockage des images n’est pas configuré. Réessayez plus tard.');
+        }
+
+        $cover = $mediaService->upload($request->file('cover_art'), $projet->id, 'pochette', 'cover');
+
+        $projet->update([
+            'cover_art_path' => $cover['public_id'],
+            'cover_art_url' => $cover['file_url'],
+            'cover_art_nom_original' => $request->file('cover_art')->getClientOriginalName(),
+            'cover_art_public_id' => $cover['public_id'],
+        ]);
+
+        Log::info('Pochette du projet mise à jour', [
+            'projet_id' => $projet->id,
+            'uploaded_by' => $user->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Votre pochette a été enregistrée avec succès.');
+    }
+
+    public function updatePlatformLinks(Request $request, Projet $projet)
+    {
+        Gate::authorize('admin-access');
+
+        $validated = $request->validate([
+            'platform_links' => 'nullable|array',
+            'platform_links.*.name' => 'required_with:platform_links|string|max:80',
+            'platform_links.*.url' => 'required_with:platform_links|url:https|max:2048',
+            'distribution_status' => 'required|in:pending,published',
+            'release_date' => 'nullable|date',
+        ]);
+
+        $links = collect($validated['platform_links'] ?? [])
+            ->filter(fn ($link) => filled($link['name'] ?? null) && filled($link['url'] ?? null))
+            ->values()
+            ->all();
+
+        $projet->update([
+            'platform_links' => $links,
+            'distribution_status' => $validated['distribution_status'],
+            'release_date' => $validated['release_date'] ?? null,
+        ]);
+
+        if ($validated['distribution_status'] === 'published') {
+            $projet->updateEtape('distribution_terminee', 'Musiques publiées sur les plateformes');
+            if ($projet->artiste) {
+                $projet->artiste->notify(new \App\Notifications\ProjetEtapeUpdatedNotification($projet));
+            }
+        }
+
+        return redirect()->back()->with('success', 'La diffusion et les liens de plateforme ont été enregistrés.');
+    }
+
+    public function sendMessage(Request $request, Projet $projet)
+    {
+        $user = Auth::user();
+        abort_unless(
+            $user && (
+                $user->isAdmin()
+                || ($user->isResponsableStudio() && $projet->responsable_id === $user->id)
+                || ($user->isArtiste() && $projet->artiste_id === $user->id)
+            ),
+            403
+        );
+
+        $validated = $request->validate([
+            'message' => 'required|string|min:2|max:3000',
+        ], [
+            'message.required' => 'Écrivez un message avant l’envoi.',
+            'message.min' => 'Le message doit contenir au moins 2 caractères.',
+            'message.max' => 'Le message ne peut pas dépasser 3000 caractères.',
+        ]);
+
+        $projet->messages()->create([
+            'sender_id' => $user->id,
+            'message' => trim($validated['message']),
+        ]);
+
+        if ($user->isAdmin()) {
+            if ($projet->artiste) {
+                $projet->artiste->notify(new \App\Notifications\ProjetEtapeUpdatedNotification($projet));
+            }
+        }
+
+        return redirect()->back()->with('success', 'Message envoyé pour ce projet.');
     }
 }

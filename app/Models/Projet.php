@@ -17,7 +17,8 @@ class Projet extends Model
         'fichier_audio_path', 'fichier_video_path', 'fichier_audio_nom_original',
         'fichier_video_nom_original', 'fichier_audio_taille', 'fichier_video_taille',
         'fichier_audio_uploaded_at', 'fichier_video_uploaded_at', 'fichiers_valides_admin',
-        'commentaire_admin_fichiers'
+        'commentaire_admin_fichiers', 'cover_art_path', 'cover_art_url',
+        'cover_art_nom_original', 'cover_art_public_id', 'platform_links', 'distribution_status'
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class Projet extends Model
         'fichier_audio_uploaded_at' => 'datetime',
         'fichier_video_uploaded_at' => 'datetime',
         'fichiers_valides_admin' => 'boolean',
+        'platform_links' => 'array',
     ];
 
     public function artiste()
@@ -38,6 +40,11 @@ class Projet extends Model
     public function responsable()
     {
         return $this->belongsTo(User::class, 'responsable_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(ProjectMessage::class, 'project_id')->latest();
     }
 
     public function etapes()

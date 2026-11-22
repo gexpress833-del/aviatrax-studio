@@ -164,63 +164,50 @@
 
                     <!-- Section Upload de fichiers pour le mastering -->
                     @if($projet->etape === 'mastering' && auth()->user()->isResponsableStudio())
-                        <div class="mt-6 p-4 bg-[#1a2233] rounded-lg">
-                            <h4 class="text-md font-medium text-orange-400 mb-3">📁 Upload des fichiers finaux</h4>
-                            
+                        <div class="mt-6 overflow-hidden rounded-xl border border-orange-500/30 bg-[#151d2d]">
+                            <div class="border-b border-slate-700 px-5 py-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">Livraison finale</p>
+                                <h4 class="mt-1 text-lg font-semibold text-white">Envoyer les masters à l’administration</h4>
+                                <p class="mt-1 text-sm text-slate-400">Le responsable transmet les fichiers définitifs pour validation avant la diffusion.</p>
+                            </div>
+
                             @if(!$projet->hasFichierAudio() && !$projet->hasFichierVideo())
-                                <form action="{{ route('projets.upload-media', $projet) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                <form action="{{ route('projets.upload-media', $projet) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 p-5">
                                     @csrf
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-blue-300 mb-2">🎵 Fichier Audio (MP3, WAV, AAC, FLAC - Max 500MB)</label>
-                                        <input type="file" name="fichier_audio" accept=".mp3,.wav,.aac,.flac" 
-                                               class="block w-full text-sm text-blue-200 file:bg-blue-900 file:text-blue-200 file:rounded file:border-none file:px-3 file:py-2 file:mr-3">
-                                        @error('fichier_audio')<div class="text-orange-400 text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-blue-300 mb-2">🎬 Fichier Vidéo (MP4, AVI, MOV, MKV - Max 1GB)</label>
-                                        <input type="file" name="fichier_video" accept=".mp4,.avi,.mov,.mkv" 
-                                               class="block w-full text-sm text-blue-200 file:bg-blue-900 file:text-blue-200 file:rounded file:border-none file:px-3 file:py-2 file:mr-3">
-                                        @error('fichier_video')<div class="text-orange-400 text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    
-                                    <button type="submit" class="w-full bg-orange-400 text-black px-4 py-2 rounded-md hover:bg-orange-500 font-semibold">
-                                        📤 Envoyer à l'administrateur
-                                    </button>
+                                    <label class="rounded-xl border border-dashed border-blue-500/40 bg-slate-950/50 p-4 transition hover:border-blue-400">
+                                        <span class="block text-sm font-semibold text-blue-300">Master audio</span>
+                                        <span class="mt-1 block text-xs text-slate-400">MP3, WAV, AAC, FLAC, OGG ou M4A — 500 MB maximum</span>
+                                        <input type="file" name="fichier_audio" accept=".mp3,.wav,.aac,.flac,.ogg,.m4a" class="mt-3 block w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2.5 file:text-white">
+                                        @error('fichier_audio')<span class="mt-2 block text-xs text-red-300">{{ $message }}</span>@enderror
+                                    </label>
+                                    <label class="rounded-xl border border-dashed border-violet-500/40 bg-slate-950/50 p-4 transition hover:border-violet-400">
+                                        <span class="block text-sm font-semibold text-violet-300">Clip ou fichier vidéo</span>
+                                        <span class="mt-1 block text-xs text-slate-400">MP4, AVI, MOV ou MKV — 1 GB maximum</span>
+                                        <input type="file" name="fichier_video" accept=".mp4,.avi,.mov,.mkv" class="mt-3 block w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-violet-600 file:px-4 file:py-2.5 file:text-white">
+                                        @error('fichier_video')<span class="mt-2 block text-xs text-red-300">{{ $message }}</span>@enderror
+                                    </label>
+                                    <button type="submit" class="rounded-lg bg-orange-400 px-5 py-3 font-semibold text-slate-950 hover:bg-orange-300">Envoyer pour validation</button>
                                 </form>
                             @else
-                                <div class="space-y-3">
-                                    <p class="text-green-400 font-medium">✅ Fichiers uploadés avec succès !</p>
-                                    
-                                    @if($projet->hasFichierAudio() && (
-                                        auth()->user()->isAdmin() ||
-                                        auth()->user()->isResponsableStudio() ||
-                                        auth()->user()->isSecretaire()
-                                    ))
-                                        <div class="flex flex-col gap-2 p-2 bg-[#101828] rounded sm:flex-row sm:items-center sm:justify-between">
-                                            <div class="min-w-0">
-                                                <span class="text-sm text-blue-300">🎵 {{ $projet->fichier_audio_nom_original }}</span>
-                                                <span class="text-xs text-gray-400 ml-2">({{ $projet->getAudioSizeFormatted() }})</span>
-                                            </div>
-                                            <a href="{{ route('projets.download-audio', $projet) }}" 
-                                               class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                Télécharger
-                                            </a>
+                                <div class="p-5">
+                                    <div class="mb-4 flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3">
+                                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                                        <div>
+                                            <p class="text-sm font-semibold text-emerald-300">Livraison enregistrée</p>
+                                            <p class="text-xs text-slate-500">{{ $projet->fichiers_valides_admin ? 'Validée par l’administration' : 'En attente de validation administrative' }}</p>
+                                        </div>
+                                    </div>
+                                    @if($projet->hasFichierAudio())
+                                        <div class="mb-2 flex items-center justify-between gap-3 rounded-lg bg-slate-950/70 p-3">
+                                            <div class="min-w-0"><p class="truncate text-sm text-blue-200">🎵 {{ $projet->fichier_audio_nom_original }}</p><p class="text-xs text-slate-500">{{ $projet->getAudioSizeFormatted() }}</p></div>
+                                            <a href="{{ route('projets.download-audio', $projet) }}" class="shrink-0 rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-500">Télécharger</a>
                                         </div>
                                     @endif
-                                    
                                     @if($projet->hasFichierVideo())
-                                        <div class="flex flex-col gap-2 p-2 bg-[#101828] rounded sm:flex-row sm:items-center sm:justify-between">
-                                            <div class="min-w-0">
-                                                <span class="text-sm text-blue-300">🎬 {{ $projet->fichier_video_nom_original }}</span>
-                                                <span class="text-xs text-gray-400 ml-2">({{ $projet->getVideoSizeFormatted() }})</span>
-                                            </div>
+                                        <div class="flex items-center justify-between gap-3 rounded-lg bg-slate-950/70 p-3">
+                                            <div class="min-w-0"><p class="truncate text-sm text-violet-200">🎬 {{ $projet->fichier_video_nom_original }}</p><p class="text-xs text-slate-500">{{ $projet->getVideoSizeFormatted() }}</p></div>
                                             @if(auth()->user()->isAdmin())
-                                                <a href="{{ route('projets.download-video', $projet) }}" 
-                                                   class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    Télécharger
-                                                </a>
+                                                <a href="{{ route('projets.download-video', $projet) }}" class="shrink-0 rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-500">Télécharger</a>
                                             @endif
                                         </div>
                                     @endif
@@ -268,6 +255,35 @@
                     @endif
 
                     @if(auth()->user()->isAdmin())
+                        <div class="mt-6 rounded-xl border border-indigo-500/30 bg-indigo-950/20 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Publication</p>
+                            <h4 class="mt-1 font-semibold text-white">Liens des plateformes</h4>
+                            <form action="{{ route('admin.projects.platform-links.update', $projet) }}" method="POST" class="mt-3 space-y-3">
+                                @csrf
+                                @method('PUT')
+                                <div class="space-y-2">
+                                    @foreach(['Spotify','Apple Music','Boomplay','Deezer','TikTok','YouTube Music','Audiomack'] as $platform)
+                                        @php
+                                            $existing = collect($projet->platform_links ?? [])->firstWhere('name', $platform);
+                                        @endphp
+                                        <label class="grid grid-cols-1 gap-1 text-xs text-slate-300 sm:grid-cols-[110px_1fr] sm:items-center">
+                                            <span>{{ $platform }}</span>
+                                            <input type="url" name="platform_links[{{ $loop->index }}][url]" value="{{ $existing['url'] ?? '' }}" placeholder="https://…" class="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white">
+                                            <input type="hidden" name="platform_links[{{ $loop->index }}][name]" value="{{ $platform }}">
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <input type="date" name="release_date" value="{{ $projet->release_date?->format('Y-m-d') }}" class="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white">
+                                    <select name="distribution_status" class="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white">
+                                        <option value="pending" @selected($projet->distribution_status !== 'published')>Préparation</option>
+                                        <option value="published" @selected($projet->distribution_status === 'published')>Publié en ligne</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-500">Publier les liens</button>
+                            </form>
+                        </div>
+
                         <div class="mt-6 space-y-2">
                             <form action="{{ route('projets.update', $projet) }}" method="POST" onsubmit="return confirm('Valider ce projet ?');">
                                 @csrf
@@ -314,5 +330,94 @@
             </div>
         </div>
     </div>
+
+    @if(auth()->user()->isArtiste() && $projet->artiste_id === auth()->id())
+        <div id="pochette" class="mt-6 p-5 rounded-xl border border-indigo-500/30 bg-indigo-950/20">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Identité visuelle</p>
+                    <h4 class="mt-1 text-lg font-semibold text-white">Pochette du morceau</h4>
+                    <p class="mt-1 text-sm text-slate-400">Format obligatoire : carré <strong class="text-slate-200">1600 × 1600 px</strong>. JPG, PNG ou WebP — 20 MB maximum.</p>
+                    <div class="mt-3 grid gap-2 text-xs text-slate-300 sm:grid-cols-2">
+                        <p class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2"><strong class="text-emerald-300">À inclure :</strong> uniquement le titre du chant ou de l’album et le nom de l’artiste.</p>
+                        <p class="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2"><strong class="text-red-300">À éviter :</strong> aucune photo, aucun visage, aucun logo externe, aucune URL ou promotion supplémentaire.</p>
+                    </div>
+                </div>
+                @if($projet->cover_art_url)
+                    <img src="{{ $projet->cover_art_url }}" alt="Pochette de {{ $projet->titre }}" class="h-28 w-28 rounded-xl object-cover ring-1 ring-slate-700">
+                @endif
+            </div>
+            <form action="{{ route('projets.cover-art.upload', $projet) }}" method="POST" enctype="multipart/form-data" class="mt-4 flex flex-col gap-3 sm:flex-row">
+                @csrf
+                <input type="file" name="cover_art" accept="image/jpeg,image/png,image/webp" required class="block min-w-0 flex-1 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2.5 file:text-white">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-500">{{ $projet->cover_art_url ? 'Remplacer la pochette' : 'Envoyer la pochette' }}</button>
+            </form>
+        </div>
+
+        @if($projet->fichiers_valides_admin)
+            <div class="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">Livraison validée</p>
+                <h3 class="mt-1 text-lg font-semibold text-white">Fichiers finaux</h3>
+                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    @if($projet->hasFichierAudio())
+                        <a href="{{ route('projets.download-audio', $projet) }}" class="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 p-4 hover:border-blue-400">
+                            <span><span class="block text-sm font-semibold text-blue-200">Master audio</span><span class="text-xs text-slate-400">{{ $projet->getAudioSizeFormatted() }}</span></span>
+                            <span class="text-sm font-semibold text-blue-300">Télécharger</span>
+                        </a>
+                    @endif
+                    @if($projet->hasFichierVideo())
+                        <a href="{{ route('projets.download-video', $projet) }}" class="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 p-4 hover:border-violet-400">
+                            <span><span class="block text-sm font-semibold text-violet-200">Fichier vidéo</span><span class="text-xs text-slate-400">{{ $projet->getVideoSizeFormatted() }}</span></span>
+                            <span class="text-sm font-semibold text-violet-300">Télécharger</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        @if($projet->distribution_status === 'published' && is_array($projet->platform_links) && count($projet->platform_links))
+            <div class="mt-6 rounded-xl border border-indigo-500/30 bg-indigo-950/20 p-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Maintenant disponible</p>
+                <h3 class="mt-1 text-lg font-semibold text-white">Votre musique en ligne</h3>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    @foreach($projet->platform_links as $link)
+                        @if(!empty($link['url']))
+                            <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20">{{ $link['name'] }}</a>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    @endif
+
+    <section class="mt-6 overflow-hidden rounded-xl border border-slate-700 bg-slate-900/90">
+        <div class="border-b border-slate-800 px-5 py-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Accompagnement personnalisé</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">Messages du projet — {{ $projet->titre }}</h3>
+            <p class="mt-1 text-sm text-slate-400">Cette conversation appartient uniquement à ce projet.</p>
+        </div>
+        <div class="max-h-[420px] space-y-3 overflow-y-auto px-5 py-4">
+            @forelse($projet->messages()->with('sender')->get() as $message)
+                @php $mine = $message->sender_id === auth()->id(); @endphp
+                <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
+                    <div class="max-w-[86%] rounded-2xl border px-4 py-3 {{ $mine ? 'border-indigo-500/30 bg-indigo-500/10' : 'border-slate-700 bg-slate-950/80' }}">
+                        <p class="text-xs font-semibold {{ $mine ? 'text-indigo-300' : 'text-slate-300' }}">{{ $mine ? 'Vous' : ($message->sender->name ?? 'Aviatrax') }}</p>
+                        <p class="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-100">{{ $message->message }}</p>
+                        <p class="mt-2 text-[10px] text-slate-500">{{ $message->created_at->format('d/m/Y H:i') }}</p>
+                    </div>
+                </div>
+            @empty
+                <div class="rounded-lg border border-dashed border-slate-700 py-8 text-center text-sm text-slate-500">Aucun message pour ce projet pour le moment.</div>
+            @endforelse
+        </div>
+        @if(auth()->user()->isAdmin() || auth()->user()->isResponsableStudio() || (auth()->user()->isArtiste() && $projet->artiste_id === auth()->id()))
+            <form action="{{ route('projets.messages.store', $projet) }}" method="POST" class="border-t border-slate-800 px-5 py-4">
+                @csrf
+                <label for="project-message" class="mb-2 block text-sm font-medium text-slate-200">{{ auth()->user()->isArtiste() ? 'Écrire au responsable ou à l’administration' : 'Informer l’artiste sur ce projet' }}</label>
+                <textarea id="project-message" name="message" rows="3" maxlength="3000" required placeholder="Instructions, corrections, prochaines étapes…" class="w-full resize-y rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"></textarea>
+                <div class="mt-3 flex justify-end"><button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Envoyer le message</button></div>
+            </form>
+        @endif
+    </section>
 </div>
-@endsection 
+@endsection

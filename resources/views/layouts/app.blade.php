@@ -44,45 +44,38 @@
             }
         }
 
-        #page-progress {
+        /* No artificial global loading indicator: real navigation is handled by the browser. */
+
+        #global-progress {
             position: fixed;
             inset: 0 0 auto 0;
-            z-index: 9999;
+            z-index: 100000;
             height: 3px;
-            pointer-events: none;
-            background: linear-gradient(90deg, #38bdf8 0%, #818cf8 55%, #fb923c 100%);
-            box-shadow: 0 0 14px rgba(129, 140, 248, 0.72);
-            transform: translateX(-101%) scaleX(1);
+            transform: scaleX(0);
             transform-origin: left;
             opacity: 0;
-            transition: transform 260ms ease-out, opacity 180ms ease-out;
+            pointer-events: none;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #fb923c);
+            box-shadow: 0 0 14px rgba(129, 140, 248, 0.7);
+            transition: transform 180ms ease, opacity 120ms ease;
         }
 
-        #page-progress.is-active {
+        #global-progress.is-active {
             opacity: 1;
-            animation: page-progress-travel 1.1s ease-in-out infinite alternate;
         }
-
-        #page-progress.is-complete {
-            opacity: 1;
-            transform: translateX(0) scaleX(1);
-        }
-
-        @keyframes page-progress-travel {
-            0% { transform: translateX(-85%) scaleX(.38); }
-            55% { transform: translateX(-25%) scaleX(.72); }
-            100% { transform: translateX(12%) scaleX(.48); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased">
-    <div id="page-progress" role="progressbar" aria-label="Chargement de la page" aria-valuemin="0" aria-valuemax="100"></div>
+    <div id="global-progress" role="progressbar" aria-label="Chargement" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
     @auth
     <nav class="bg-slate-950/95 border-b border-orange-500/70 shadow-lg shadow-slate-950/40 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex min-h-16 flex-wrap items-center justify-between gap-y-3 py-3">
                 <div class="flex w-full items-center justify-between lg:w-auto lg:justify-start lg:gap-6">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url('/') }}" class="text-lg font-bold text-blue-400 tracking-wide transition-colors hover:text-orange-300 sm:text-xl">Aviatrax Studio</a>
+                        <a href="{{ url('/') }}" class="flex items-center gap-2" aria-label="Aviatrax Studio, accueil">
+                            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="h-10 w-10 rounded-xl bg-slate-100 object-contain p-1">
+                        </a>
                     </div>
                     <div class="hidden lg:flex lg:items-center lg:space-x-6">
                         <a href="{{ route('dashboard') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Dashboard</a>
@@ -115,54 +108,12 @@
                         $unreadNotificationsCount = $user->unreadNotifications()->count();
                     @endphp
 
-                    <div id="notification-center" class="relative">
-                        <button id="notification-toggle" type="button" aria-expanded="false" aria-controls="notification-panel" class="relative flex items-center justify-center w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-slate-100 hover:border-blue-400 hover:text-blue-300 transition" aria-label="Notifications">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/>
-                            </svg>
-                            <span id="notification-count" class="{{ $unreadNotificationsCount > 0 ? 'flex' : 'hidden' }} absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 items-center justify-center text-[10px] font-bold rounded-full bg-red-500 text-white border border-slate-950">{{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}</span>
-                        </button>
-
-                        <div id="notification-panel" class="absolute right-0 top-12 hidden w-[min(90vw,360px)] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-slate-950/60 z-50" role="region" aria-label="Notifications récentes">
-                            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-                                <a href="{{ route('notifications.index') }}" class="text-sm font-semibold text-slate-100 hover:text-indigo-300">Notifications</a>
-                                <form method="POST" action="{{ route('notifications.read-all') }}" class="{{ $unreadNotificationsCount > 0 ? '' : 'hidden' }}">
-                                    @csrf
-                                    <button type="submit" class="text-[11px] font-medium text-blue-300 hover:text-blue-200">Tout marquer comme lu</button>
-                                </form>
-                            </div>
-
-                            <div id="notification-list" class="max-h-[330px] overflow-y-auto">
-                                @forelse($latestNotifications as $notification)
-                                    @php
-                                        $data = $notification->data ?? [];
-                                        $title = $data['titre'] ?? ($data['artiste_name'] ?? 'Nouvelle notification');
-                                        $message = $data['etape_label'] ?? ($data['artiste_email'] ?? 'Vous avez une mise à jour importante.');
-                                        $targetUrl = isset($data['projet_id']) ? route('projets.show', $data['projet_id']) : route('dashboard');
-                                    @endphp
-
-                                    <div class="border-b border-slate-800 {{ $notification->read_at ? 'bg-slate-900/50' : 'bg-blue-500/5' }}">
-                                        <a href="{{ $targetUrl }}" data-read-url="{{ route('notifications.read', $notification->id) }}" class="block px-4 py-3 hover:bg-slate-800/80 transition">
-                                            <div class="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p class="text-sm font-medium text-slate-100">{{ $title }}</p>
-                                                    <p class="mt-1 text-xs text-slate-300">{{ $message }}</p>
-                                                </div>
-                                                @if(is_null($notification->read_at))
-                                                    <span class="mt-1 h-2.5 w-2.5 rounded-full bg-blue-400 flex-shrink-0"></span>
-                                                @endif
-                                            </div>
-                                            <div class="mt-2 text-[10px] uppercase tracking-wide text-slate-400">{{ $notification->created_at->diffForHumans() }}</div>
-                                        </a>
-                                    </div>
-                                @empty
-                                    <div class="px-4 py-5 text-sm text-slate-400 text-center">
-                                        Aucune notification pour le moment.
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
+                    <a id="notification-toggle" href="{{ route('notifications.index') }}" class="relative flex items-center justify-center w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-slate-100 hover:border-blue-400 hover:text-blue-300 transition" aria-label="Voir toutes les notifications">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/>
+                        </svg>
+                        <span id="notification-count" class="{{ $unreadNotificationsCount > 0 ? 'flex' : 'hidden' }} absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 items-center justify-center text-[10px] font-bold rounded-full bg-red-500 text-white border border-slate-950">{{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}</span>
+                    </a>
 
                     <a href="{{ route('profile.show') }}" class="flex items-center group">
                         @if($user->photo_path)
@@ -313,163 +264,7 @@
                     }, 500);
                 }, 4000);
             });
-
-            const center = document.getElementById('notification-center');
-            if (!center) return;
-
-            const toggle = document.getElementById('notification-toggle');
-            const panel = document.getElementById('notification-panel');
-            const list = document.getElementById('notification-list');
-            const count = document.getElementById('notification-count');
-            const readAllForm = center.querySelector('form[action$="/notifications/read-all"]');
-            const feedUrl = @json(route('notifications.feed'));
-            const csrfToken = @json(csrf_token());
-            let previousUnreadCount = Number(count.textContent) || 0;
-
-            toggle.addEventListener('click', function () {
-                const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-                toggle.setAttribute('aria-expanded', String(!isOpen));
-                panel.classList.toggle('hidden', isOpen);
-            });
-
-            document.addEventListener('click', function (event) {
-                if (!center.contains(event.target)) {
-                    panel.classList.add('hidden');
-                    toggle.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            function escapeHtml(value) {
-                const element = document.createElement('span');
-                element.textContent = value ?? '';
-                return element.innerHTML;
-            }
-
-            async function refreshNotifications() {
-                if (document.hidden) return;
-
-                try {
-                    const response = await fetch(feedUrl, {
-                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                        credentials: 'same-origin',
-                    });
-                    if (!response.ok) return;
-
-                    const feed = await response.json();
-                    const unreadCount = Number(feed.unread_count) || 0;
-                    count.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
-                    count.classList.toggle('hidden', unreadCount === 0);
-                    count.classList.toggle('flex', unreadCount > 0);
-                    readAllForm?.classList.toggle('hidden', unreadCount === 0);
-
-                    if (unreadCount > previousUnreadCount) {
-                        toggle.setAttribute('aria-label', unreadCount + ' notifications non lues');
-                    } else if (unreadCount === 0) {
-                        toggle.setAttribute('aria-label', 'Notifications');
-                    }
-                    previousUnreadCount = unreadCount;
-
-                    if (document.activeElement?.closest('#notification-list')) return;
-                    list.innerHTML = feed.notifications.length
-                        ? feed.notifications.map(function (notification) {
-                            const unreadStyle = notification.read ? 'bg-slate-900/50' : 'bg-blue-500/5';
-                            const unreadDot = notification.read ? '' : '<span class="mt-1 h-2.5 w-2.5 rounded-full bg-blue-400 flex-shrink-0"></span>';
-                            return '<div class="border-b border-slate-800 ' + unreadStyle + '">' +
-                                '<a href="' + escapeHtml(notification.url) + '" data-read-url="/notifications/' + encodeURIComponent(notification.id) + '/read" class="block px-4 py-3 hover:bg-slate-800/80 transition">' +
-                                    '<div class="flex items-start justify-between gap-3"><div>' +
-                                        '<p class="text-sm font-medium text-slate-100">' + escapeHtml(notification.title) + '</p>' +
-                                        '<p class="mt-1 text-xs text-slate-300">' + escapeHtml(notification.message) + '</p>' +
-                                    '</div>' + unreadDot + '</div>' +
-                                    '<div class="mt-2 text-[10px] uppercase tracking-wide text-slate-400">' + escapeHtml(notification.created_at) + '</div>' +
-                                '</a></div>';
-                        }).join('')
-                        : '<div class="px-4 py-5 text-sm text-slate-400 text-center">Aucune notification pour le moment.</div>';
-                } catch (error) {
-                    console.error('Impossible d’actualiser les notifications.', error);
-                }
-            }
-
-            refreshNotifications();
-            window.setInterval(refreshNotifications, 5000);
-            document.addEventListener('visibilitychange', refreshNotifications);
-
-            list.addEventListener('click', async function (event) {
-                const link = event.target.closest('a[data-read-url]');
-                if (!link) return;
-
-                event.preventDefault();
-                try {
-                    await fetch(link.dataset.readUrl, {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                        credentials: 'same-origin',
-                    });
-                } finally {
-                    window.location.assign(link.href);
-                }
-            });
-
-            readAllForm?.addEventListener('submit', async function (event) {
-                event.preventDefault();
-                setActionButtonLoading(event.submitter, true);
-                try {
-                    const response = await fetch(readAllForm.action, {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                        credentials: 'same-origin',
-                    });
-                    if (response.ok || response.redirected) await refreshNotifications();
-                } catch (error) {
-                    readAllForm.submit();
-                } finally {
-                    setActionButtonLoading(event.submitter, false);
-                }
-            });
         });
-
-        const pageProgress = document.getElementById('page-progress');
-        let progressRequests = 0;
-
-        function startPageProgress() {
-            if (!pageProgress) return;
-            progressRequests += 1;
-            pageProgress.classList.remove('is-complete');
-            pageProgress.classList.add('is-active');
-            pageProgress.setAttribute('aria-valuenow', '45');
-        }
-
-        function finishPageProgress() {
-            if (!pageProgress) return;
-            progressRequests = Math.max(0, progressRequests - 1);
-            if (progressRequests > 0) return;
-            pageProgress.classList.remove('is-active');
-            pageProgress.classList.add('is-complete');
-            pageProgress.setAttribute('aria-valuenow', '100');
-            window.setTimeout(function () {
-                pageProgress.classList.remove('is-complete');
-                pageProgress.removeAttribute('aria-valuenow');
-            }, 260);
-        }
-
-        window.addEventListener('load', finishPageProgress);
-
-        document.addEventListener('click', function (event) {
-            const link = event.target.closest('a[href]');
-            if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-            const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin || link.hasAttribute('download') || link.target === '_blank') return;
-            startPageProgress();
-        });
-
-        document.addEventListener('submit', function (event) {
-            if (!event.defaultPrevented) startPageProgress();
-        }, true);
-
-        const nativeFetch = window.fetch.bind(window);
-        window.fetch = function (...args) {
-            startPageProgress();
-            return nativeFetch(...args).finally(finishPageProgress);
-        };
     </script>
 </body>
 </html>

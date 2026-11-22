@@ -43,6 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projets/{projet}/download-audio', [ProjetController::class, 'downloadAudio'])->name('projets.download-audio');
     Route::get('/projets/{projet}/download-video', [ProjetController::class, 'downloadVideo'])->name('projets.download-video');
     Route::post('/projets/{projet}/validate-files', [ProjetController::class, 'validateFiles'])->name('projets.validate-files');
+    Route::post('/projets/{projet}/cover-art', [ProjetController::class, 'uploadCover'])->name('projets.cover-art.upload');
+    Route::post('/projets/{projet}/messages', [ProjetController::class, 'sendMessage'])->name('projets.messages.store');
 
     // Profil utilisateur
     Route::get('/profile', [App\Http\Controllers\UserController::class, 'showProfile'])->name('profile.show');
@@ -78,6 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{user}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
         Route::put('/projets/{projet}/date-sortie', [AdminController::class, 'updateProjectReleaseDate'])->name('projects.release-date');
+        Route::put('/projets/{projet}/platformes', [ProjetController::class, 'updatePlatformLinks'])->name('projects.platform-links.update');
         Route::put('/distributions/{project}/validation', [AdminController::class, 'reviewDistributionProject'])->name('distribution-projects.review');
         Route::post('/distributions/{project}/platforms', [AdminController::class, 'saveDistributionPlatform'])->name('distribution-projects.platforms.store');
         Route::get('/logs', [AdminController::class, 'logs'])->name('logs');

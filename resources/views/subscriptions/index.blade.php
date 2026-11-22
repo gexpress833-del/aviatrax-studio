@@ -7,6 +7,7 @@
     <header class="relative overflow-hidden rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-indigo-950/70 via-slate-950 to-slate-950 px-5 py-8 sm:px-8 sm:py-10">
         <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl"></div>
         <div class="relative max-w-3xl">
+            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="mb-5 h-14 w-14 rounded-2xl bg-slate-100 object-contain p-1.5 shadow-lg">
             <p class="text-xs font-bold uppercase tracking-[0.22em] text-indigo-300">Aviatrax distribution</p>
             <h1 class="mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">Lancez votre musique dans le monde</h1>
             <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">Activez votre accès mensuel à la plateforme, suivez votre distribution et accompagnez chaque sortie jusqu’à sa mise en ligne.</p>
@@ -134,8 +135,8 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-slate-700 pt-4">
-                            <span class="text-3xl font-bold text-white">12 $</span>
-                            <span class="text-sm text-slate-400">pour 1 mois de distribution</span>
+                            <span class="text-3xl font-bold text-white">{{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} {{ config('aviatrax.subscription_currency', 'USD') === 'USD' ? '$' : config('aviatrax.subscription_currency') }}</span>
+                            <span class="text-sm text-slate-400">/ {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours de distribution</span>
                         </div>
                         <button type="submit" class="w-full rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-indigo-950/30 transition hover:bg-indigo-500">Payer de manière sécurisée</button>
                         <p class="text-center text-xs text-slate-500">Paiement sécurisé par Mobile Money ou carte. La production en studio est distincte.</p>
@@ -146,11 +147,11 @@
             <aside class="space-y-4">
                 <div class="rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-indigo-950/50 via-slate-900 to-slate-950 p-5 sm:p-6">
                     <p class="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">Pass distribution</p>
-                    <div class="mt-4 flex items-end gap-2"><span class="text-5xl font-black tracking-tight text-white">12 $</span><span class="pb-1 text-sm text-slate-400">/ 30 jours</span></div>
+                    <div class="mt-4 flex items-end gap-2"><span class="text-5xl font-black tracking-tight text-white">{{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} {{ config('aviatrax.subscription_currency', 'USD') === 'USD' ? '$' : config('aviatrax.subscription_currency') }}</span><span class="pb-1 text-sm text-slate-400">/ {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</span></div>
                     <p class="mt-3 text-sm leading-6 text-slate-400">Un accès mensuel conçu pour préparer, soumettre et suivre vos sorties.</p>
                     <div class="my-5 h-px bg-slate-800"></div>
                     <ul class="space-y-4 text-sm text-slate-200">
-                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Accès complet pendant 30 jours</span></li>
+                        <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Accès complet pendant {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</span></li>
                         <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Soumission professionnelle des sorties</span></li>
                         <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Suivi des validations et des plateformes</span></li>
                         <li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">✓</span><span>Historique et suivi de votre portefeuille</span></li>

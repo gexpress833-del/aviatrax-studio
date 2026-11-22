@@ -10,7 +10,7 @@
     <nav class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-5 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
             <div class="flex items-center justify-center gap-3 sm:justify-start">
-                <a href="{{ url('/') }}" class="text-xl sm:text-2xl font-black tracking-tight text-white" aria-label="Aviatrax Studio, accueil">AVIATRAX <span class="text-indigo-500">STUDIO</span></a>
+                <a href="{{ url('/') }}" class="flex items-center gap-2" aria-label="Aviatrax Studio, accueil"><img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="h-11 w-11 rounded-xl object-contain bg-slate-100 p-1"></a>
                 <span class="hidden md:inline-block text-xs text-slate-400 border-l border-slate-700 pl-3">
                     Par <strong class="text-slate-200">Aviator Music</strong> &amp; <strong class="text-slate-200">Maisha Sound Studio</strong>
                 </span>
@@ -52,7 +52,7 @@
             </h1>
 
             <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Créez votre compte gratuitement, puis choisissez l'abonnement de distribution à <strong class="text-white">12 $ / 1 mois</strong> pour publier vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Vous pouvez aussi donner vie à vos projets grâce à notre studio de référence.
+                Créez votre compte gratuitement, puis choisissez l'abonnement de distribution à <strong class="text-white">{{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $ / {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</strong> pour publier vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Vous pouvez aussi donner vie à vos projets grâce à notre studio de référence.
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">
@@ -112,8 +112,8 @@
                         <p class="text-slate-400 text-sm mb-6">Destiné à tout artiste souhaitant publier ses morceaux déjà prêts sur toutes les plateformes de streaming et encaisser ses revenus.</p>
 
                         <div class="mb-6 pb-6 border-b border-slate-800">
-                            <span class="text-4xl font-black text-white">55 $</span>
-                            <span class="text-slate-400 text-sm"> / abonnement unique pour 6 mois</span>
+                            <span class="text-4xl font-black text-white">{{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $</span>
+                            <span class="text-slate-400 text-sm"> / {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</span>
                         </div>
 
                         <ul class="space-y-3 text-sm text-slate-300 mb-8">
@@ -126,7 +126,7 @@
 
                     <div>
                         <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 mb-5 text-xs text-amber-200">
-                            <strong>⚠️ À noter :</strong> Ce tarif de 55 $ concerne <u>uniquement</u> la mise en ligne et le suivi sur l'application. Il n'inclut pas les frais d'enregistrement ou de mixage au studio.
+                            <strong>⚠️ À noter :</strong> Ce tarif concerne <u>uniquement</u> la mise en ligne et le suivi sur l'application. Il n'inclut pas les frais d'enregistrement ou de mixage au studio.
                         </div>
                         @if (Route::has('register'))
                             <a href="{{ route('register') }}" class="block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl transition">Créer un compte pour souscrire</a>
@@ -155,7 +155,7 @@
 
                     <div>
                         <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 mb-5 text-xs text-slate-400">
-                            <strong>ℹ️ Fonctionnement :</strong> Une fois votre son finalisé et réglé auprès de <em>Maisha Sound Studio</em>, vous activez votre Pass Distribution (55$) pour le lancer dans le monde entier.
+                            <strong>ℹ️ Fonctionnement :</strong> Une fois votre son finalisé et réglé auprès de <em>Maisha Sound Studio</em>, vous activez votre Pass Distribution à {{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $ pour {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours.
                         </div>
                         @if (Route::has('register'))
                             <a href="{{ route('register') }}" class="block w-full text-center bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-xl border border-slate-700 transition">Créer un compte artiste</a>
@@ -191,8 +191,8 @@
         <h2 class="text-3xl font-bold text-center text-white mb-12">Questions Fréquentes</h2>
         <div class="space-y-4">
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
-                <h3 class="font-bold text-white text-lg mb-2">Quelle est la différence entre le prix de production au studio et l'abonnement de 55 $ ?</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Ce sont deux choses totalement séparées : 1) <strong>La production au studio (Maisha Sound Studio)</strong> correspond aux frais de fabrication de votre chanson (enregistrement, mixage, mastering) selon les tarifs du studio. 2) <strong>L'abonnement de 55 $ pour 6 mois</strong> couvre uniquement votre accès à la plateforme Aviatrax Studio pour publier vos morceaux sur toutes les plateformes mondiales et récupérer vos revenus.</p>
+                <h3 class="font-bold text-white text-lg mb-2">Quelle est la différence entre le prix de production au studio et l'abonnement de {{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $ ?</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Ce sont deux choses totalement séparées : 1) <strong>La production au studio (Maisha Sound Studio)</strong> correspond aux frais de fabrication de votre chanson (enregistrement, mixage, mastering) selon les tarifs du studio. 2) <strong>L'abonnement de {{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $ pour {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</strong> couvre uniquement votre accès à la plateforme Aviatrax Studio pour publier vos morceaux sur toutes les plateformes mondiales et récupérer vos revenus.</p>
             </div>
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
                 <h3 class="font-bold text-white text-lg mb-2">Qui se cache derrière Aviatrax Studio ?</h3>

@@ -9,6 +9,7 @@
         <div class="pointer-events-none absolute -bottom-32 left-1/4 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
 
         <div class="relative mx-auto max-w-3xl text-center">
+            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="mx-auto mb-6 h-16 w-16 rounded-2xl bg-slate-100 object-contain p-2 shadow-lg">
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-400/10 shadow-[0_0_40px_rgba(52,211,153,.18)] sm:h-24 sm:w-24">
                 <svg class="h-10 w-10 text-emerald-300 sm:h-12 sm:w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/>
@@ -32,7 +33,7 @@
                 </div>
                 <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
                     <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Montant</p>
-                    <p class="mt-2 font-bold text-white">12 $ <span class="text-xs font-normal text-slate-400">/ mois</span></p>
+                    <p class="mt-2 font-bold text-white">{{ number_format((float) $subscription->amount, 2) }} {{ $subscription->currency === 'USD' ? '$' : $subscription->currency }} <span class="text-xs font-normal text-slate-400">/ {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</span></p>
                 </div>
             </div>
 
