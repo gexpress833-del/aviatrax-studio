@@ -6,66 +6,67 @@
     <title>Aviatrax Studio — Distribution Mondiale & Production Musicale</title>
     @vite('resources/css/app.css')
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
-    <nav class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-5 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
-            <div class="flex items-center justify-center gap-3 sm:justify-start">
-                <a href="{{ url('/') }}" class="flex items-center gap-2" aria-label="Aviatrax Studio, accueil"><img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="h-11 w-11 rounded-xl object-contain bg-slate-100 p-1"></a>
-                <span class="hidden md:inline-block text-xs text-slate-400 border-l border-slate-700 pl-3">
-                    Par <strong class="text-slate-200">Aviator Music</strong> &amp; <strong class="text-slate-200">Maisha Sound Studio</strong>
-                </span>
+<body class="bg-[#080d14] font-sans text-slate-100 antialiased selection:bg-orange-300 selection:text-slate-950">
+    <nav class="sticky top-0 z-50 border-b border-white/10 bg-[#080d14]/95 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6">
+            <a href="{{ route('home') }}" class="flex items-center gap-3" aria-label="Aviatrax Studio, accueil">
+                <img src="{{ asset('logo-aviatrax-crop.png') }}" alt="" class="h-12 w-10 rounded-md object-contain">
+                <span class="leading-tight"><strong class="block text-sm font-black text-white">AVIATRAX</strong><small class="text-[10px] font-semibold uppercase text-slate-400">Studio</small></span>
+            </a>
+            <div class="order-3 flex w-full items-center justify-center gap-6 text-sm sm:order-none sm:w-auto">
+                <a href="{{ route('home') }}" class="font-semibold text-orange-300" aria-current="page">Accueil</a>
+                <a href="#platforms-title" class="text-slate-300 transition hover:text-white">Plateformes</a>
+                <a href="#services" class="text-slate-300 transition hover:text-white">Services</a>
             </div>
-            <div class="flex items-center justify-center gap-4">
-                @if (Route::has('login'))
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="text-sm font-medium text-slate-300 hover:text-white transition">Tableau de bord</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300 hover:text-white transition">Connexion</a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20">Créer mon compte</a>
-                        @endif
-                    @endauth
-                @endif
+            <div class="flex items-center gap-3">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="text-sm font-medium text-slate-300 transition hover:text-white">Tableau de bord</a>
+                @else
+                    <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300 transition hover:text-white">Connexion</a>
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" class="rounded-md bg-orange-400 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-orange-300">Créer mon compte</a>
+                    @endif
+                @endauth
             </div>
         </div>
     </nav>
 
-    <header class="relative overflow-hidden pt-16 pb-24 px-6">
-        <div class="max-w-5xl mx-auto text-center">
-            <div class="mb-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6" aria-label="Aviator Music et Maisha Sound Studio">
-                <div class="flex h-24 w-32 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-white p-2 shadow-lg shadow-black/20 sm:h-28 sm:w-40">
-                    <img src="{{ asset('logo.jpg') }}" alt="Logo Aviator Music" class="h-full w-full object-contain" width="160" height="112">
+    <header id="top" class="relative isolate overflow-hidden border-b border-white/10 bg-[radial-gradient(ellipse_at_76%_45%,rgba(28,111,140,0.2),transparent_38%),linear-gradient(120deg,#080d14_0%,#101b25_55%,#111820_100%)] px-5 py-10 sm:px-8 sm:py-14 lg:py-16">
+        <div class="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_.95fr] lg:gap-12">
+            <div class="max-w-2xl">
+                <p class="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase text-sky-300">
+                    <span class="h-px w-8 bg-orange-400"></span> Distribution &amp; production musicale
+                </p>
+                <h1 class="text-4xl font-black leading-[1.08] text-white sm:text-5xl lg:text-6xl">
+                    Votre musique mérite <span class="text-orange-300">la scène mondiale.</span>
+                </h1>
+                <p class="mt-5 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
+                    Publiez vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Suivez chaque sortie et donnez vie à vos projets avec notre studio partenaire.
+                </p>
+                <p class="mt-4 text-sm text-slate-400">
+                    Un produit du label <strong class="text-slate-200">Aviator Music</strong> en collaboration avec <strong class="text-slate-200">Maisha Sound Studio</strong>.
+                </p>
+                <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="inline-flex min-h-12 items-center justify-center rounded-md bg-orange-400 px-6 text-sm font-bold text-slate-950 transition hover:bg-orange-300">Ouvrir mon espace</a>
+                    @else
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="inline-flex min-h-12 items-center justify-center rounded-md bg-orange-400 px-6 text-sm font-bold text-slate-950 transition hover:bg-orange-300">Créer mon compte</a>
+                        @endif
+                        <a href="{{ route('login') }}" class="inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 px-6 text-sm font-semibold text-white transition hover:border-sky-300 hover:bg-white/5">Connexion</a>
+                    @endauth
+                    <a href="#services" class="inline-flex min-h-12 items-center justify-center px-4 text-sm font-semibold text-sky-200 transition hover:text-white">Découvrir les services <span class="ml-2" aria-hidden="true">↓</span></a>
                 </div>
-                <span class="text-xl font-bold text-slate-500" aria-hidden="true">×</span>
-                <div class="flex h-24 w-32 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-black p-2 shadow-lg shadow-black/20 sm:h-28 sm:w-40">
-                    <img src="{{ asset('logoMS.jpg') }}" alt="Logo Maisha Sound Studio" class="h-full w-full object-contain" width="160" height="112">
+                <div class="mt-7 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/10 pt-5 text-xs font-medium text-slate-400">
+                    <span><strong class="text-emerald-300">100%</strong> de vos droits conservés</span>
+                    <span>Spotify · Apple Music · Deezer</span>
                 </div>
             </div>
 
-            <div class="inline-flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium px-4 py-1.5 rounded-full mb-8">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Un produit du label <strong class="text-white">Aviator Music</strong> en collaboration avec <strong class="text-white">Maisha Sound Studio</strong>
-            </div>
-
-            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-                Propulsez votre musique sur <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">toutes les plateformes mondiales</span>.
-            </h1>
-
-            <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Créez votre compte gratuitement, puis choisissez l'abonnement de distribution à <strong class="text-white">{{ number_format((float) config('aviatrax.subscription_amount', 12), 0) }} $ / {{ (int) config('aviatrax.subscription_duration_days', 30) }} jours</strong> pour publier vos morceaux sur Spotify, Apple Music, Boomplay et TikTok. Vous pouvez aussi donner vie à vos projets grâce à notre studio de référence.
-            </p>
-
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-xl shadow-xl shadow-indigo-600/25 transition duration-200 text-base">Créer mon compte</a>
-                @endif
-                <a href="#services" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold py-4 px-8 rounded-xl transition duration-200 text-base">Découvrir nos services</a>
-            </div>
-
-            <div class="mt-8 flex flex-wrap justify-center gap-6 text-xs text-slate-400">
-                <span>✓ Spotify • Apple Music • Boomplay • Audiomack • Deezer</span>
-                <span>✓ 100% de vos droits conservés</span>
-                <span>✓ Retraits en argent réel</span>
+            <div class="flex justify-center lg:justify-end">
+                <div class="w-[min(100%,360px)] overflow-hidden rounded-xl border border-sky-200/20 bg-[#07111c] shadow-[0_28px_90px_rgba(0,0,0,0.55)] sm:w-[min(100%,410px)]">
+                    <img src="{{ asset('logo-aviatrax-crop.png') }}" alt="Emblème et logo Aviatrax Studio" class="block aspect-[4/5] w-full object-cover" width="620" height="768" fetchpriority="high">
+                </div>
             </div>
         </div>
     </header>

@@ -117,11 +117,5 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// 🔁 Route par défaut
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-
-    return view('welcome');
-});
+// Page d’accueil publique, également accessible aux utilisateurs connectés.
+Route::view('/', 'welcome')->name('home');

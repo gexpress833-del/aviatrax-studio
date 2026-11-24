@@ -7,7 +7,7 @@
     <header class="relative overflow-hidden rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-indigo-950/70 via-slate-950 to-slate-950 px-5 py-8 sm:px-8 sm:py-10">
         <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl"></div>
         <div class="relative max-w-3xl">
-            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="mb-5 h-14 w-14 rounded-2xl bg-slate-100 object-contain p-1.5 shadow-lg">
+            <img src="{{ asset('logo-aviatrax-crop.png') }}" alt="Aviatrax Studio" class="mb-5 h-16 w-14 rounded-xl object-contain shadow-lg">
             <p class="text-xs font-bold uppercase tracking-[0.22em] text-indigo-300">Aviatrax distribution</p>
             <h1 class="mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">Lancez votre musique dans le monde</h1>
             <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">Activez votre accès mensuel à la plateforme, suivez votre distribution et accompagnez chaque sortie jusqu’à sa mise en ligne.</p>

@@ -23,7 +23,18 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Aviatrax Studio');
+        $response->assertSee('Aviatrax Studio')
+            ->assertSee('Votre musique mérite')
+            ->assertSee('Accueil');
+    }
+
+    public function test_the_landing_page_remains_the_entry_page_for_authenticated_users(): void
+    {
+        $this->actingAs(User::factory()->create(['telephone' => '0102030409']))
+            ->get('/')
+            ->assertOk()
+            ->assertSee('Votre musique mérite')
+            ->assertSee(route('dashboard'));
     }
 
     public function test_the_dashboard_requires_authentication(): void
@@ -68,6 +79,7 @@ class ExampleTest extends TestCase
 
         $this->get(route('dashboard'))
             ->assertOk()
+            ->assertSee(route('home'), false)
             ->assertSee('bg-slate-900/90', false)
             ->assertDontSee('bg-white', false);
 

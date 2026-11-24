@@ -6,7 +6,7 @@
 <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-950">
     <div class="w-full max-w-xl rounded-3xl border border-blue-400/40 bg-slate-900/90 p-8 shadow-2xl shadow-slate-950/60">
         <a href="{{ url('/') }}" class="mb-8 inline-flex items-center gap-3 text-lg font-bold text-blue-300 transition-colors hover:text-orange-300" aria-label="Aviatrax Studio, accueil">
-            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="h-10 w-10 rounded-xl bg-slate-100 object-contain p-1">
+            <img src="{{ asset('logo-aviatrax-crop.png') }}" alt="Aviatrax Studio" class="h-11 w-10 rounded-lg object-contain">
             Aviatrax Studio
         </a>
 

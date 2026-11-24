@@ -73,11 +73,12 @@
             <div class="flex min-h-16 flex-wrap items-center justify-between gap-y-3 py-3">
                 <div class="flex w-full items-center justify-between lg:w-auto lg:justify-start lg:gap-6">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url('/') }}" class="flex items-center gap-2" aria-label="Aviatrax Studio, accueil">
-                            <img src="{{ asset('logo_aviatrax-studio.jfif') }}" alt="Aviatrax Studio" class="h-10 w-10 rounded-xl bg-slate-100 object-contain p-1">
+                        <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="Aviatrax Studio, accueil">
+                            <img src="{{ asset('logo-aviatrax-crop.png') }}" alt="Aviatrax Studio" class="h-11 w-10 rounded-lg border border-slate-700 object-contain">
                         </a>
                     </div>
                     <div class="hidden lg:flex lg:items-center lg:space-x-6">
+                        <a href="{{ route('home') }}" class="text-orange-300 hover:text-orange-200 transition-colors">Accueil</a>
                         <a href="{{ route('dashboard') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Dashboard</a>
                         <a href="{{ route('projets.index') }}" class="text-blue-300 hover:text-blue-200 transition-colors">Projets</a>
                         @if($user = auth()->user())
@@ -136,6 +137,7 @@
             </div>
             <div id="mobile-menu" class="hidden border-t border-slate-800 py-3 lg:hidden">
                 <div class="grid grid-cols-2 gap-2 text-sm">
+                    <a href="{{ route('home') }}" class="rounded-lg px-3 py-2 text-orange-200 hover:bg-slate-800">Accueil</a>
                     <a href="{{ route('dashboard') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Dashboard</a>
                     <a href="{{ route('projets.index') }}" class="rounded-lg px-3 py-2 text-blue-200 hover:bg-slate-800">Projets</a>
                     @if($user->isArtiste())
